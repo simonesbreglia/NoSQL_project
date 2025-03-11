@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risultati della Query</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h1>Risultati della Query</h1>
+
+    <!-- Visualizzazione dei risultati della query -->
+    <table border="1">
+        <tr>
+            <th>Risultato</th>
+        </tr>
+        {% for row in result_data %}
+            <tr>
+                <td>{{ row.Risultato }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    <h3>Codice MongoDB della Query:</h3>
+    <p>{{ mongo_query }}</p>
+
+    <br>
+    <a href="/">Torna alla pagina principale</a>
+</body>
+</html>

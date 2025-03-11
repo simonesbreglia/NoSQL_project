@@ -4,114 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MongoDB Query Builder</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f7f7f7;
-            color: #333;
-            margin: 0;
-            padding: 0;
-        }
-        header {
-            background-color: #2c3e50;
-            color: white;
-            padding: 10px 0;
-            text-align: center;
-        }
-        h1 {
-            margin: 0;
-        }
-        .container {
-            width: 80%;
-            margin: 20px auto;
-        }
-        .form-container {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
-        .form-container label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-        .form-container input[type="checkbox"] {
-            margin-right: 10px;
-        }
-        .form-container button {
-            padding: 10px 20px;
-            background-color: #3498db;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .form-container button:hover {
-            background-color: #2980b9;
-        }
-        .table-container {
-            margin-top: 30px;
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        table, th, td {
-            border: 1px solid #ddd;
-        }
-        th, td {
-            padding: 12px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-
-    <header>
-        <h1>MongoDB Query Builder</h1>
-    </header>
-
-    <div class="container">
-        <div class="form-container">
-            <h2>Select Fields to Query</h2>
-            <form method="POST">
-                <label for="fields">Choose which fields to display:</label>
-                <input type="checkbox" name="fields" value="Name"> Name<br>
-                <input type="checkbox" name="fields" value="Artist"> Artist<br>
-                <input type="checkbox" name="fields" value="Album"> Album<br>
-                <input type="checkbox" name="fields" value="Year"> Year<br>
-                <button type="submit">Run Query</button>
-            </form>
-        </div>
-
-        {% if tables %}
-        <div class="table-container">
-            <h2>Query Results</h2>
-            {% for table in tables %}
-                <div class="table-responsive">
-                    {{ table|safe }}
-                </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <div class="table-container">
-            <p>No results to display. Please select fields and run a query.</p>
-        </div>
-        {% endif %}
-    </div>
-
+    <h1>MongoDB Query Builder</h1>
+    <form action="/query" method="POST">
+        <label for="query_type">Seleziona la query:</label>
+        <select name="query_type" id="query_type">
+            <option value="count_tracks">Contare il numero di canzoni</option>
+            <option value="count_album">Contare il numero di album</option>
+            <option value="count_genres">Contare il numero di generi musicali</option>
+            <option value="count_artists">Contare il numero di artisti</option>
+            <option value="count_playlists">Contare il numero di playlist</option>
+            <option value="songs_per_album">Contare il numero di canzoni per album</option>
+            <option value="songs_per_genre">Contare il numero di canzoni per genere</option>
+            <option value="songs_per_artist">Contare il numero di canzoni per artista</option>
+            <option value="songs_per_playlist">Contare il numero di canzoni per playlist</option>
+            <option value="artists_per_genre">Contare il numero di artisti per genere</option>
+            <option value="artists_per_playlist">Contare il numero di artisti per playlist</option>
+            <option value="albums_per_artist">Contare il numero di album per artista</option>
+            <option value="playlist_per_songs">Contare quante playlist contengono una canzone</option>
+        </select>
+        <br>
+        <button type="submit">Esegui query</button>
+    </form>
 </body>
 </html>
-
