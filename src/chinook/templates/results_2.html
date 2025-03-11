@@ -46,21 +46,21 @@
     </style>
 </head>
 <body>
-    <h1>Risultati della Query - Album e Canzoni</h1>
+    <h1>Risultati della Query</h1>
 
     {% if result_data %}
         <!-- Visualizzazione dei risultati della query -->
         <table>
             <thead>
                 <tr>
-                    <th>Nome dell'Album</th>
-                                                                                                                                                            <th>Numero di Canzoni</th>
+                    <th>{{ column_titles[0] }}</th>
+                    <th>{{ column_titles[1] }}</th>
                 </tr>
             </thead>
             <tbody>
                 {% for row in result_data %}
                     <tr>
-                        <td>{{ row.Album }}</td>
+                        <td>{{ row.value }} </td>
                         <td>{{ row.count }}</td>
                     </tr>
                 {% endfor %}

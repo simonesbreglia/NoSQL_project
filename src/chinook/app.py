@@ -47,7 +47,7 @@ def query():
             {
                 "$project": {
                     "_id": 0,
-                    "Album": "$_id",
+                    "value": "$_id",
                     "count": 1
                 }
             },
@@ -57,8 +57,29 @@ def query():
         ])
         mongo_query = "db.Track.aggregate([{$group: {_id: '$Album.Title', count: {$sum: 1}}, {$project: {_id: 0, Album: '$_id', Count: 1}}, {$sort: {Count: -1}}])"
         result_data = list(result)
-        return render_template('results_2.html', result_data=result_data, mongo_query=mongo_query)
-
+        return render_template('results_2.html', result_data=result_data, mongo_query=mongo_query, column_titles=["Album", "Numero di Canzoni"])
+    elif query_type == "songs_per_genre":
+        result = db.Track.aggregate([
+            {
+                "$group": {
+                    "_id": "$Genre.Name",
+                    "count": {"$sum": 1}
+                }
+            },
+            {
+                "$project": {
+                    "_id": 0,
+                    "value": "$_id",
+                    "count": 1
+                }
+            },
+            {
+                "$sort": {"count": -1}
+            }
+        ])
+        mongo_query = "db.Track.aggregate([{$group: {_id: '$Genre.Name', count: {$sum: 1}}, {$project: {_id: 0, Genre: '$_id', Count: 1}}, {$sort: {Count: -1}}])"
+        result_data = list(result)
+        return render_template('results_2.html', result_data=result_data, mongo_query=mongo_query, column_titles=["Genere", "Numero di Canzoni"], column_keys=["Genre", "count"])
     else:
         result_data = []
         mongo_query = "Invalid query type"

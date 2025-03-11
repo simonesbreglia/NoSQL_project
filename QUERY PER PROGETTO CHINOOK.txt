@@ -1,0 +1,23 @@
+QUERY PER PROGETTO CHINOOK
+
+1. Query di conteggio:
+	1.1 Contare il numero di canzoni
+	1.2 Contare il numero di album
+	1.3 Contare il numero di generi musicali
+	1.4 Contare il numero di artisti
+	1.5 Contare il numero di tipi di file
+	1.6 Contare il numero di Playlist
+2. Query di conteggio complesse:
+	2.1 Numero di canzoni per album
+	2.2 Numero di canzoni per artista
+	2.3 Numero di canzoni per genere
+	2.4 Numero di canzoni per playlist
+	2.5 Numero di comparse di ogni canzone nelle playlist
+3. Query di filtraggio:
+	3.1 Per artista
+	3.2 Per genere
+	3.3 Per album
+	3.4 Per playlist
+4. Query di filtraggio composte:
+	query generiche di filtraggio per gli stessi valori di prima ma uno dietro l'altro sulla base dell'input dell'utente
+
