@@ -80,6 +80,104 @@ def query():
         mongo_query = "db.Track.aggregate([{$group: {_id: '$Genre.Name', count: {$sum: 1}}, {$project: {_id: 0, Genre: '$_id', Count: 1}}, {$sort: {Count: -1}}])"
         result_data = list(result)
         return render_template('results_2.html', result_data=result_data, mongo_query=mongo_query, column_titles=["Genere", "Numero di Canzoni"], column_keys=["Genre", "count"])
+    
+    elif query_type == "songs_per_artist":
+        result = db.Track.aggregate([
+            {
+                "$group": {
+                    "_id": "$Artist.Name",
+                    "count": {"$sum": 1}
+                }
+            },
+            {
+                "$project": {
+                    "_id": 0,
+                    "value": "$_id",
+                    "count": 1
+                }
+            },
+            {
+                "$sort": {"count": -1}
+            }
+        ])
+        mongo_query = "db.Track.aggregate([{$group: {_id: '$Artist.Name', count: {$sum: 1}}, {$project: {_id: 0, Artist: '$_id', Count: 1}}, {$sort: {Count: -1}}])"
+        result_data = list(result)
+        return render_template('results_2.html', result_data=result_data, mongo_query=mongo_query, column_titles=["Artista", "Numero di Canzoni"], column_keys=["Artist", "count"])
+    elif query_type == "songs_per_playlist":
+        result = db.Track.aggregate([
+            {
+                "$unwind": "$Playlist"
+            },
+            {
+                "$group": {
+                    "_id": "$Playlist.Name",
+                    "count": {"$sum": 1}
+                }
+            },
+            {
+                "$project": {
+                    "_id": 0,
+                    "value": "$_id",
+                    "count": 1
+                }
+            },
+            {
+                "$sort": {"count": -1}
+            }
+        ])
+        mongo_query = "db.Track.aggregate([{$unwind: '$Playlist'}, {$group: {_id: '$Playlist.Name', count: {$sum: 1}}, {$project: {_id: 0, Playlist: '$_id', Count: 1}}, {$sort: {Count: -1}}])"
+        result_data = list(result)
+        return render_template('results_2.html', result_data=result_data, mongo_query=mongo_query, column_titles=["Playlist", "Numero di Canzoni"], column_keys=["Playlist", "count"])
+    elif query_type == "artists_per_playlist":
+        result = db.Track.aggregate([
+            {
+                "$unwind": "$Playlist"
+            },
+            {
+                "$group": {
+                    "_id": "$Playlist.Name",
+                    "artists": {"$addToSet": "$Artist.Name"}
+                }
+            },
+            {
+                "$project": {
+                    "_id": 0,
+                    "value": "$_id",
+                    "count": {"$size": "$artists"}
+                }
+            },
+            {
+                "$sort": {"count": -1}
+            }
+        ])
+        mongo_query = "db.Track.aggregate([{$unwind: '$Playlist'}, {$group: {_id: '$Playlist.Name', artists: {$addToSet: '$Artist.Name'}}, {$project: {_id: 0, Playlist: '$_id', Count: {$size: '$artists'}}}, {$sort: {Count: -1}}])"
+        result_data = list(result)
+        return render_template('results_2.html', result_data=result_data, mongo_query=mongo_query, column_titles=["Playlist", "Numero di Artisti"], column_keys=["Playlist", "count"])    
+    elif query_type == "albums_per_artist":
+        result = db.Track.aggregate([
+            {
+                "$unwind": "$Artist"
+            },
+            {
+                "$group": {
+                    "_id": "$Artist.Name",
+                    "albums": {"$addToSet": "$Album.Title"}
+                }
+            },
+            {
+                "$project": {
+                    "_id": 0,
+                    "value": "$_id",
+                    "count": {"$size": "$albums"}
+                }
+            },
+            {
+                "$sort": {"count": -1}
+            }
+        ])   
+        mongo_query = "db.Track.aggregate([{$unwind: '$Artist'}, {$group: {_id: '$Artist.Name', albums: {$addToSet: '$Album.Title'}}, {$project: {_id: 0, Artist: '$_id', Count: {$size: '$albums'}}}, {$sort: {Count: -1}}])"
+        result_data = list(result)
+        return render_template('results_2.html', result_data=result_data, mongo_query=mongo_query, column_titles=["Artista", "Numero di Album"], column_keys=["Artist", "count"]) 
     else:
         result_data = []
         mongo_query = "Invalid query type"
