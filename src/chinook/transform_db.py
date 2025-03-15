@@ -1,19 +1,32 @@
-from pymongo import MongoClient
+
 import pandas as pd
 import numpy as np
 import os
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
 
 
-client = MongoClient('mongodb://localhost:27017/')
-db = client['Chinook_optimized']
+# client = MongoClient(uri, server_api=ServerApi('1'))
+
+db = client['Chinook']
+
 Track = db['Track']
 Invoice = db['Invoice']
 Customer = db['Customer']
 Employee = db['Employee']
 
-path = "../../data/ChinookDataset/"
+# torna indietro di due cartelle
+path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir)) + '/data/ChinookDataset/'
 
 if __name__ == '__main__':
+
+        # Send a ping to confirm a successful connection
+    try:
+        client.admin.command('ping')
+        print("Pinged your deployment. You successfully connected to MongoDB!")
+    except Exception as e:
+        print(e)
+        
     # Caricamento del dataset
     dfs = {}
     table_names = ['Album', 'Artist', 'Customer', 'Employee', 'Genre', 'Invoice', 'InvoiceLine', 'MediaType', 'Playlist', 'PlaylistTrack', 'Track']

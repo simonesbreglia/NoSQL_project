@@ -1,8 +1,11 @@
-from pymongo import MongoClient
 import streamlit as st
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
 
-client = MongoClient("mongodb://localhost:27017/")
-db = client["Chinook_optimized"]
+uri = st.secrets['mongo']['uri']
+client = MongoClient(uri, server_api=ServerApi('1'))
+
+db = client['Chinook']
 
 st.title("Chinook Database Query Selector")
 
