@@ -68,6 +68,13 @@ selected_query = st.selectbox(
 # Esegui la query selezionata
 if selected_query:
     st.write(f"Query selected: {selected_query}")
+
+    # try ping the database
+    try:
+        client.admin.command("ping")
+        st.write("Database connection: OK")
+    except Exception as e:
+        st.write(f"Database connection: ERROR - {e}")
     
     query_result, titles = queries[selected_query]()  # Chiama la funzione corretta
     
