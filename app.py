@@ -7,6 +7,8 @@ client = MongoClient(uri, server_api=ServerApi('1'))
 
 db = client['Chinook']
 
+@st.cache_data(ttl=600)
+
 st.title("Chinook Database Query Selector")
 
 # Definisci le query come funzioni
