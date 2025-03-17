@@ -210,8 +210,9 @@ if selected_query:
             and_filters = []
             project = {}
             for f in st.session_state.filters:
-                query = {fields[f["field"]]: {operator_map[f["operator"]]: f["value"]}}
-                and_filters.append(query)
+                if f['field'] is not None and f['operator'] is not None and f['value'] is not None:
+                    query = {fields[f["field"]]: {operator_map[f["operator"]]: f["value"]}}
+                    and_filters.append(query)
 
             project = {
                 "_id": 0,
