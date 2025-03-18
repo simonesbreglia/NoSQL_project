@@ -1,17 +1,14 @@
 import streamlit as st
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
-
-uri = st.secrets['mongo']['uri']
-client = MongoClient(uri, server_api=ServerApi('1'))
-
+from db_utils import get_local_connection, get_remote_connection
 import requests
 
-db = client['Chinook']
-
-st.set_page_config(page_title="Chinook Database Query Selector", page_icon=":musical_note:", layout="wide")
 
 
+st.set_page_config(page_title="Music Database", page_icon=":musical_note:", layout="wide")
+
+db = get_local_connection()
 
 if "filters" not in st.session_state:
     st.session_state.filters = []
@@ -77,15 +74,15 @@ def albums_per_artist():
     ])), None  
 
 
-central_col_width = 0.4
+central_col_width = 0.5
 side_col_width = (1 - central_col_width) / 2
 
 _, central_col, _ = st.columns([side_col_width, central_col_width, side_col_width])
 
 with central_col:
 
-    st.title("Chinook Database Query Selector")
-    type_of_query = st.selectbox("Select the type of query to execute:", ["Count", "Aggregate and Count", "Filtering"])
+    st.title("Chinook Database Query Selector")             
+    type_of_query = st.selectbox("Select the type of query to execute:", ["Count", "Aggregate and Count", "Filtering"], index = None)
 
 # Map the queries to functions
 queries_count = {
@@ -189,8 +186,12 @@ if selected_query:
                 values = db.Track.distinct(fields[f["field"]]) if f["field"] is not None else []
                 
                 # Valore del filtro
-                if f["field"] == "Track length" or f["field"] == "Price":
+                if f["field"] == "Price":
                     f["value"] = col3.number_input(f"Value {i+1}", key=f"value_{i}", value = 0)
+                elif f["field"] == "Track length":
+                    minuts = col3.number_input(f"Minuts {i+1}", key=f"value_{i}_m", value = 0)
+                    seconds = col3.number_input(f"Seconds {i+1}", key=f"value_{i}_s", value = 0)
+                    f["value"] = minuts*60000 + seconds*1000
                 else:
                     f["value"] = col3.selectbox(f"Value {i+1}", values, key=f"value_{i}", index = None)
                 
@@ -244,6 +245,3 @@ if selected_query:
             # Visualizza il risultato
             st.write(f"Number of results: {len(query_result)}")
             st.dataframe(query_result)
-
- 
-
