@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: my_mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongo_data:/data/db    # I dati rimangono salvati localmente
+
+  python-app:
+    build: .
+    container_name: my_python_app
+    depends_on:
+      - mongodb
+    volumes:
+      - .:/app                   # Monta tutto il progetto
+    working_dir: /app
+    command: >
+      sh -c "python src/chinook/transform_db.py && streamlit run my_app/app.py --server.address=0.0.0.0"
+    ports:
+      - "8501:8501"              # Porta per accedere a Streamlit
+    environment:
+      - PYTHONUNBUFFERED=1
+
+networks:
+  mynetwork:
+    driver: bridge

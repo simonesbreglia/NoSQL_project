@@ -6,9 +6,9 @@ import requests
 @st.cache_resource
 
 def get_local_connection():
-    url = "mongodb://localhost:27017/"
+    url = "mongodb://mongodb:27017/"
     client = MongoClient(url)
-    return client['Chinook_optimized']
+    return client['Chinook']
 
 def get_remote_connection():
     uri = st.secrets['mongo']['uri']

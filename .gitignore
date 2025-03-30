@@ -1,3 +1,4 @@
 MongoDB_env/
 pw_mongo.txt
 .streamlit/
+mongo_data/

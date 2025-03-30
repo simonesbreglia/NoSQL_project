@@ -7,7 +7,7 @@ from pymongo.server_api import ServerApi
 
 
 # client = MongoClient(uri, server_api=ServerApi('1'))
-
+client = MongoClient("mongodb://mongodb:27017/")
 db = client['Chinook']
 
 Track = db['Track']
@@ -18,7 +18,7 @@ Employee = db['Employee']
 # torna indietro di due cartelle
 path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir)) + '/data/ChinookDataset/'
 
-if __name__ == '__main__':
+if db.my_collection.estimated_document_count() == 0:
 
         # Send a ping to confirm a successful connection
     try:
@@ -154,3 +154,6 @@ if __name__ == '__main__':
         Employee.insert_one(entry)
 
     print("Database popolato con successo!")    
+
+else:
+    print("Il database è già popolato. Nessuna azione necessaria.")
