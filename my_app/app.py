@@ -1,7 +1,7 @@
 import streamlit as st
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
-from db_utils import get_local_connection, get_remote_connection
+from db_utils import get_local_connection, get_remote_connection, get_docker_connection
 import requests
 
 

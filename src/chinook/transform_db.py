@@ -4,11 +4,14 @@ import numpy as np
 import os
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir)))
+from my_app.db_utils import get_local_connection, get_remote_connection, get_docker_connection
 
 
 # client = MongoClient(uri, server_api=ServerApi('1'))
-client = MongoClient("mongodb://mongodb:27017/")
-db = client['Chinook']
+db = get_local_connection()
 
 Track = db['Track']
 Invoice = db['Invoice']
@@ -19,13 +22,6 @@ Employee = db['Employee']
 path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir)) + '/data/ChinookDataset/'
 
 if db.my_collection.estimated_document_count() == 0:
-
-        # Send a ping to confirm a successful connection
-    try:
-        client.admin.command('ping')
-        print("Pinged your deployment. You successfully connected to MongoDB!")
-    except Exception as e:
-        print(e)
         
     # Caricamento del dataset
     dfs = {}
