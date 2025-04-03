@@ -1,14 +1,17 @@
 import streamlit as st
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
-from db_utils import get_local_connection, get_remote_connection
+from db_utils import get_local_connection, get_remote_connection, get_docker_connection
 import requests
+import plotly.express as px
+import plotly.graph_objects as go
+import pandas as pd
 
 
-
-st.set_page_config(page_title="Music Database", page_icon=":musical_note:", layout="wide")
+st.set_page_config(page_title="Music Database", page_icon=":musical_note:", layout="wide", initial_sidebar_state = "collapsed")
 
 db = get_local_connection()
+
 
 if "filters" not in st.session_state:
     st.session_state.filters = []
@@ -119,8 +122,25 @@ if selected_query:
     # Se il risultato è una lista (es. da aggregate()), visualizzalo come tabella
     if type_of_query == "Aggregate and Count":
         query_result, titles = queries[selected_query]()  # Chiama la funzione corretta
+        df = pd.DataFrame(query_result)
         with central_col:
             st.dataframe(query_result)
+
+        fig_bar = go.Figure()
+        fig_bar.add_trace(
+            go.Bar(
+                x = df[df.columns[0]].tolist(),
+                y = df[df.columns[1]].tolist(),
+                text = df[df.columns[1]].tolist(),
+                textposition = 'auto',
+                marker_color = 'indigo',
+
+            )
+        )
+        
+        
+        st.plotly_chart(fig_bar, use_container_width=True, config={"displayModeBar": False})
+        
     elif type_of_query == "Count":                                                     
         query_result, titles = queries[selected_query]()  # Chiama la funzione corretta
         with central_col:                             

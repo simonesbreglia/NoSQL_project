@@ -10,6 +10,8 @@ st.set_page_config(page_title="Chinook Database", page_icon=":musical_note:", la
 
 db = get_local_connection()
 
+
+
 central_col_width = 0.5
 side_col_width = (1 - central_col_width) / 2
 _, central_col, _ = st.columns([side_col_width, central_col_width, side_col_width])

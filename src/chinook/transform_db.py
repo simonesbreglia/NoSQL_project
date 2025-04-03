@@ -13,6 +13,8 @@ from my_app.db_utils import get_local_connection, get_remote_connection, get_doc
 # client = MongoClient(uri, server_api=ServerApi('1'))
 db = get_local_connection()
 
+
+
 Track = db['Track']
 Invoice = db['Invoice']
 Customer = db['Customer']

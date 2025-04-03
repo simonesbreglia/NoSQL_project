@@ -3,3 +3,4 @@ numpy
 matplotlib
 pymongo
 streamlit
+plotly
