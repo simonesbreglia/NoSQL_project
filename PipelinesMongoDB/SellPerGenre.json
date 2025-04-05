@@ -12,9 +12,6 @@
     "$project": {
         "InvoiceId": 1,
         "_id": 0,
-        "TrackName": "$TrackVec.Track.Name",
-        "ArtistName": "$TrackVec.Artist.Name",
-        "AlbumName": "$TrackVec.Album.Name",
         "GenreName": "$TrackVec.Genre.Name",
         "TotalRevenue": {
                 "$multiply": ["$InvoiceLines.UnitPrice", "$InvoiceLines.Quantity"]
@@ -23,7 +20,7 @@
 },
 {
     "$group": {
-        "_id": "$ArtistName",
+        "_id": "$GenreName",
         "TotalRevenue": {"$sum": "$TotalRevenue" }
     }
 },

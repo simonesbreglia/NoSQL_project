@@ -1,0 +1,50 @@
+[
+  {
+    "$unwind": "$InvoiceLines"
+  },
+  {
+    "$lookup": {
+      "from": "Track",
+      "let": { "trackId": "$InvoiceLines.TrackId" },
+      "pipeline": [
+        {
+          "$match": {
+            "$expr": {
+              "$eq": [ "$Track.TrackId", "$$trackId" ]
+            }
+          }
+        }
+      ],
+      "as": "TrackVec"
+    }
+  },
+  { "$unwind": "$TrackVec" },
+  {
+    "$project": {
+      "_id": 0,
+      "GenreName": "$TrackVec.Genre.Name",
+      "Date": "$InvoiceDate",
+      "TotalRevenue": {
+        "$multiply": [ "$InvoiceLines.UnitPrice", "$InvoiceLines.Quantity" ]
+      }
+    }
+  },
+  {
+    "$group": {
+      "_id": {
+        "GenreName": "$GenreName",
+        "Date": "$Date"
+      },
+      "TotalRevenue": { "$sum": "$TotalRevenue" }
+    }
+  },
+  {
+    "$project": {
+      "_id": 0,
+      "GenreName": "$_id.GenreName",
+      "Date": "$_id.Date",
+      "TotalRevenue": "$TotalRevenue"
+    }
+  },
+  { "$sort": { "_id.Date": 1, "TotalRevenue": -1 } }
+]

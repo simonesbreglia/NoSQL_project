@@ -18,9 +18,6 @@ def get_remote_connection():
 def get_local_connection():
     url = "mongodb://localhost:27017/"
     client = MongoClient(url)
-    pin = pin_g_mongo(client)
-    if pin == False:
-        return get_docker_connection()
     return client['Chinook']
 
 def pin_g_mongo(client):

@@ -1,0 +1,32 @@
+[
+{"$unwind": "$InvoiceLines"},
+{
+    "$lookup": {
+        "from": "Track",
+        "localField": "InvoiceLines.TrackId",
+        "foreignField": "Track.TrackId",
+        "as": "TrackVec"
+    }
+},
+{
+    "$project": {
+        "InvoiceId": 1,
+        "_id": 0,
+        "TrackName": "$TrackVec.Track.Name",
+        "TotalRevenue": {
+                "$multiply": ["$InvoiceLines.UnitPrice", "$InvoiceLines.Quantity"]
+        }
+    }
+},
+{
+    "$group": {
+        "_id": "$TrackName",
+        "TotalRevenue": {"$sum": "$TotalRevenue" }
+    }
+},
+{
+    "$sort": {
+        "TotalRevenue": -1
+    }
+}
+]
