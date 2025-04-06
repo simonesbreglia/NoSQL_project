@@ -104,6 +104,9 @@ queries_aggregate_and_count = {
     "Count the number of albums per artist": albums_per_artist
 }
 
+
+
+
 # Select the query
 with central_col:
     if type_of_query == "Count":
@@ -123,8 +126,6 @@ if selected_query:
     if type_of_query == "Aggregate and Count":
         query_result, titles = queries[selected_query]()  # Chiama la funzione corretta
         df = pd.DataFrame(query_result)
-        with central_col:
-            st.dataframe(query_result)
 
         fig_bar = go.Figure()
         fig_bar.add_trace(
@@ -137,9 +138,35 @@ if selected_query:
 
             )
         )
-        
-        
-        st.plotly_chart(fig_bar, use_container_width=True, config={"displayModeBar": False})
+
+        fig_bar.update_layout(
+            title = dict(
+                text = f"Total number of {df.columns[1]} by {df.columns[0]}",
+                font = dict(size = 20),
+                xanchor = 'center',
+                x = 0.5,
+                yanchor = 'top',
+            ),
+            xaxis_title = df.columns[0],
+            yaxis_title = df.columns[1],
+            showlegend = False,
+            height = 800,
+        )
+        with central_col:
+            visual_mode = st.radio(
+                "Select the visualization mode:",
+                ("Bar Chart", "Table"),
+                index=0,
+                horizontal=True,
+            )
+
+        if visual_mode == "Bar Chart":
+            st.plotly_chart(fig_bar, use_container_width=True, config={"displayModeBar": False})
+        else:
+            _, col, _ = st.columns([side_col_width, central_col_width, side_col_width])
+            with col:
+                st.dataframe(query_result)
+
         
     elif type_of_query == "Count":                                                     
         query_result, titles = queries[selected_query]()  # Chiama la funzione corretta

@@ -162,29 +162,36 @@ if st.session_state.run == True:
         df_result_temporal.sort_index(level=[0,1], inplace=True)
         min_date = df_result_temporal.index.get_level_values(1).min()
         max_date = df_result_temporal.index.get_level_values(1).max()
+        print(min_date, max_date)
         date_range = pd.date_range(min_date, max_date, freq='D')
 
+        df_result_temporal.sort_index(level=[0,1], inplace=True)
         for genre in df_result_temporal.index.get_level_values(0).unique():
             missing_dates = date_range.difference(df_result_temporal.loc[genre].index)
-            df = pd.concat([df_result_temporal, pd.DataFrame({'TotalRevenue': 0.0},
+            df_result_temporal = pd.concat([df_result_temporal, pd.DataFrame({'TotalRevenue': 0.0},
                                              index=pd.MultiIndex.from_product([[genre], pd.to_datetime(missing_dates)],
                                                                               names=df_result_temporal.index.names))])
+        df_result_temporal = df_result_temporal.groupby(level=0).resample('ME', level=1).sum()
         df_result_temporal.sort_index(level=[0,1], inplace=True)
-        df_result_temporal = df_result_temporal.groupby(level=0).resample('M', level=1).sum()
 
         line_plot = go.Figure()
         for option in selected_option:
-            indexes = df_result_temporal.loc[pd.IndexSlice[option, :], :].index.get_level_values(1).unique()
-            values = df_result_temporal.loc[pd.IndexSlice[option, :], "TotalRevenue"].values.flatten()
-            line_plot.add_trace(
-                go.Scatter(
-                    x=indexes,
-                    y=values,
-                    mode = "markers+lines",
-                    name=option,
-                    line=dict(width=2),
+            try:
+                indexes = df_result_temporal.loc[pd.IndexSlice[option, :], :].index.get_level_values(1).unique()
+                values = df_result_temporal.loc[pd.IndexSlice[option, :], "TotalRevenue"].values.flatten()
+
+                line_plot.add_trace(
+                    go.Scatter(
+                        x=indexes,
+                        y=values,
+                        mode = "markers+lines",
+                        name=option,
+                        line=dict(width=2),
+                    )
                 )
-            )
+            except KeyError:
+                continue
+
         line_plot.update_layout(
             title=dict(
                 text=f"Temporal Chart of Sales by {music_decision}",
