@@ -23,7 +23,7 @@ if db.my_collection.estimated_document_count() == 0:
     # Caricamento del dataset
     dfs = {}
     table_names = ['Album', 'Artist', 'Customer', 'Employee', 'Genre', 'Invoice', 'InvoiceLine', 'MediaType', 'Playlist', 'PlaylistTrack', 'Track']
-    path = 'data/'
+    path = 'data/ChinookDataset/'
     for table in table_names:
         dfs[table] = pd.read_csv(path + table + '.csv')
         dfs[table].index = np.arange(1, len(dfs[table]) + 1)
