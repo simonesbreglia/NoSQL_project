@@ -1,5 +1,10 @@
 [
   {
+    "$match": {
+      "InvoiceLines.TrackId": { "$in": [] }
+    }
+  },
+  {
     "$unwind": "$InvoiceLines"
   },
   {

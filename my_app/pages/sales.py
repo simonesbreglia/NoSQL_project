@@ -1,14 +1,10 @@
-import streamlit as st
-from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
-from db_utils import get_local_connection, get_remote_connection, get_docker_connection
-import requests
-import plotly.express as px
-import plotly.graph_objects as go
-import pandas as pd
-import random
 import json
 import os
+
+import pandas as pd
+import plotly.graph_objects as go
+import streamlit as st
+from db_utils import get_local_connection, get_remote_connection, get_docker_connection
 
 # get parent directory
 
@@ -16,6 +12,36 @@ import os
 
 
 st.set_page_config(page_title="Sales Database", page_icon=":chart_with_upwards_trend:", layout="wide", initial_sidebar_state="collapsed")
+
+def search_track_ids(_db, _selected_option, _music_decision):
+    if _music_decision == "Track":
+        ids = _db.Track.find(
+            {"Track.Name": {"$in": _selected_option}},
+            {"_id": 0, "Track.TrackId": 1}
+        )
+    elif _music_decision == "Album":
+        ids = _db.Track.find(
+            {"Album.Title": {"$in": _selected_option}},
+            {"_id": 0, "Track.TrackId": 1}
+        )
+    elif _music_decision == "Artist":
+        ids = _db.Track.find(
+            {"Artist.Name": {"$in": _selected_option}},
+            {"_id": 0, "Track.TrackId": 1}
+        )
+    elif _music_decision == "Genre":
+        ids = _db.Track.find(
+            {"Genre.Name": {"$in": _selected_option}},
+            {"_id": 0, "Track.TrackId": 1}
+        )
+    else:
+        raise ValueError("Invalid music decision")
+    df_ids = pd.DataFrame(list(ids))
+    ids = [
+        _ref['TrackId'] for _ref in df_ids['Track']
+    ]
+    return ids
+
 
 
 path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir))
@@ -90,7 +116,49 @@ with central_column:
                 selected_option = options[1:]  # Exclude "Select All" from the selection
 
             if selected_option:
+                print(selected_option)
                 st.session_state.run = False
+                run = st.button(label = "Run Query", use_container_width=True)
+                if run:
+                    run_true()
+
+    elif decision == "Sales by Employee":
+        roles = db.Employee.distinct("Title")
+        employee_role = st.multiselect(
+            label = "Select the role of the employee",
+            options = roles,
+            on_change=run_false
+        )
+        if employee_role:
+            full_names = db.Employee.aggregate([
+                {
+                    "$match": {
+                        "Title" :{
+                            "$in": employee_role
+                        }
+                    }
+                },
+                {
+                    "$project": {
+                        "Fullname": {
+                            "$concat": ["$FirstName", " ", "$LastName", " - ", "$Title"]
+                        },
+                        "_id": 0
+                    }
+                }
+            ])
+            full_names = [f["Fullname"] for f in full_names]
+            full_names.insert(0, "Select All")
+            selected_employees = st.multiselect(
+                label = "Select Employees",
+                options = full_names,
+                on_change=run_false
+            )
+            if "Select All" in selected_employees:
+                selected_employees = full_names[1:]
+            if selected_employees:
+                selected_employees = [f.split(" - ")[0] for f in selected_employees]
+
                 run = st.button(label = "Run Query", use_container_width=True)
                 if run:
                     run_true()
@@ -154,6 +222,12 @@ if st.session_state.run == True:
 
         with open(path + f'/PipelinesMongoDB/DatesInvoice{music_decision}.json') as f:
             pipeline = json.load(f)
+        track_ids = search_track_ids(db, selected_option, music_decision)
+        for stage in pipeline:
+            if "$match" in stage:
+                stage["$match"]["InvoiceLines.TrackId"]["$in"] = track_ids
+                break
+
         result = db.Invoice.aggregate(pipeline)
         df_result_temporal = pd.DataFrame(list(result))
         df_result_temporal["Date"] = pd.to_datetime(df_result_temporal["Date"])
@@ -207,6 +281,7 @@ if st.session_state.run == True:
 
         st.plotly_chart(line_plot, use_container_width=True)
 
+    elif decision == "Sales by Employee":
 
 
 
