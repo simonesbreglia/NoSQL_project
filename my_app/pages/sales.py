@@ -1,6 +1,6 @@
 import json
 import os
-
+import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
@@ -57,7 +57,6 @@ def search_employee_ids(_db, _selected_employees):
     )
 
     df_ids = pd.DataFrame(list(ids))
-    print(df_ids)
     return ids
 
 
@@ -166,6 +165,9 @@ with central_column:
             results = pd.DataFrame(list(results))
             full_names = results["Fullname"].tolist()
             ids_employee = results["EmployeeId"].tolist()
+            dict_employee = {
+                _ref['Fullname'].split(" - ")[0]: _ref['EmployeeId'] for _ref in results.to_dict(orient="records")
+            }
             full_names.insert(0, "Select All")
             selected_employees = st.multiselect(
                 label="Select Employees",
@@ -174,6 +176,9 @@ with central_column:
             )
             if "Select All" in selected_employees:
                 selected_employees = full_names[1:]
+            selected_employees_ids = [
+                dict_employee[opt.split(" - ")[0]] for opt in selected_employees
+            ]
             if selected_employees:
                 selected_employees = [f.split(" - ")[0] for f in selected_employees]
 
@@ -199,6 +204,9 @@ if st.session_state.run == True:
         # aggiungo un istogramma per riassumere le vendite totali
         indexes = df_result.index
         values = df_result.loc[:, "TotalRevenue"].values.flatten()
+
+
+
         if len(selected_option) < len(options):
             ref = {
                 indexes[i]: values[i] for i in range(len(indexes)) if indexes[i] for i in range(len(indexes)) if
@@ -252,7 +260,6 @@ if st.session_state.run == True:
         df_result_temporal = pd.DataFrame(list(result))
         df_result_temporal["Date"] = pd.to_datetime(df_result_temporal["Date"])
         df_result_temporal.set_index([df_result_temporal.columns[0], df_result_temporal.columns[1]], inplace=True)
-        # ordina le date
         df_result_temporal.sort_index(level=[0, 1], inplace=True)
         min_date = df_result_temporal.index.get_level_values(1).min()
         max_date = df_result_temporal.index.get_level_values(1).max()
@@ -314,11 +321,12 @@ if st.session_state.run == True:
         st.plotly_chart(line_plot, use_container_width=True)
 
     elif decision == "Sales by Employee":
+
         with open(path + '/PipelinesMongoDB/EmployeeSales.json') as f:
             pipeline = json.load(f)
         for stage in pipeline:
             if "$match" in stage:
-                stage["$match"]["SupportRepId"]["$in"] = ids_employee
+                stage["$match"]["SupportRepId"]["$in"] = selected_employees_ids
                 break
 
         results = db.Invoice.aggregate(pipeline)
@@ -342,7 +350,7 @@ if st.session_state.run == True:
             ])
         if len(employee_role) > 1:
             association = db.Employee.find(
-                {"EmployeeId": {"$in": ids_employee}},
+                {"EmployeeId": {"$in": selected_employees_ids}},
                 {
                     "_id": 0,
                     "EmployeeId": 1,
@@ -351,7 +359,7 @@ if st.session_state.run == True:
             )
         else:
             association = db.Employee.find(
-                {"EmployeeId": {"$in": ids_employee}},
+                {"EmployeeId": {"$in": selected_employees}},
                 {
                     "_id": 0,
                     "EmployeeId": 1,
@@ -361,7 +369,7 @@ if st.session_state.run == True:
         association = {
             _ref['EmployeeId']: _ref['Name'] for _ref in association
         }
-
+        print("Valori association", list(association.values()))
 
 
         df_result.sort_index(level=[0, 1], inplace=True)
@@ -372,6 +380,14 @@ if st.session_state.run == True:
         indexes = [
             association[_ref] for _ref in df_result.index.get_level_values(0).unique()
         ]
+        for name in list(association.values()):
+            if name not in indexes:
+                print("Values: ", values)
+                indexes.append(name)
+                values = np.append(values, 0.0)
+
+        indexes = [x for _, x in sorted(zip(values, indexes), reverse=True)]
+        values = sorted(values, reverse=True)
         bar_fig.add_trace(
             go.Bar(
                 x = indexes,

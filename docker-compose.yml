@@ -19,7 +19,7 @@ services:
       - .:/app                   # Monta tutto il progetto
     working_dir: /app
     command: >
-      sh -c "python src/chinook/transform_db.py && streamlit run my_app/app.py --server.address=0.0.0.0"
+      sh -c "python transform_db.py && streamlit run my_app/app.py --server.address=0.0.0.0"
     ports:
       - "8501:8501"              # Porta per accedere a Streamlit
     environment:

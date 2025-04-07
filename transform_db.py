@@ -2,11 +2,7 @@
 import pandas as pd
 import numpy as np
 import os
-from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
-import sys
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir)))
 from my_app.db_utils import get_local_connection, get_remote_connection, get_docker_connection
 
 
@@ -21,14 +17,13 @@ Customer = db['Customer']
 Employee = db['Employee']
 
 # torna indietro di due cartelle
-path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir)) + '/data/ChinookDataset/'
 
 if db.my_collection.estimated_document_count() == 0:
         
     # Caricamento del dataset
     dfs = {}
     table_names = ['Album', 'Artist', 'Customer', 'Employee', 'Genre', 'Invoice', 'InvoiceLine', 'MediaType', 'Playlist', 'PlaylistTrack', 'Track']
-
+    path = 'data/'
     for table in table_names:
         dfs[table] = pd.read_csv(path + table + '.csv')
         dfs[table].index = np.arange(1, len(dfs[table]) + 1)

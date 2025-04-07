@@ -3,3 +3,5 @@ pw_mongo.txt
 .streamlit/
 mongo_data/
 prova.ipynb
+consegna/*
+!consegna/*.tex
