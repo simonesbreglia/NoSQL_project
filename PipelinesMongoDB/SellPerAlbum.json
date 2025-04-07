@@ -1,32 +1,46 @@
 [
-{"$unwind": "$InvoiceLines"},
-{
+  {
+    "$match": {
+      "InvoiceLines.TrackId": {
+        "$in": []
+      }
+    }
+  },
+  {
+    "$unwind": "$InvoiceLines"
+  },
+  {
     "$lookup": {
-        "from": "Track",
-        "localField": "InvoiceLines.TrackId",
-        "foreignField": "Track.TrackId",
-        "as": "TrackVec"
+      "from": "Track",
+      "localField": "InvoiceLines.TrackId",
+      "foreignField": "Track.TrackId",
+      "as": "TrackVec"
     }
-},
-{
+  },
+  {
     "$project": {
-        "InvoiceId": 1,
-        "_id": 0,
-        "AlbumName": "$TrackVec.Album.Title",
-        "TotalRevenue": {
-                "$multiply": ["$InvoiceLines.UnitPrice", "$InvoiceLines.Quantity"]
-        }
+      "InvoiceId": 1,
+      "_id": 0,
+      "AlbumName": "$TrackVec.Album.Title",
+      "TotalRevenue": {
+        "$multiply": [
+          "$InvoiceLines.UnitPrice",
+          "$InvoiceLines.Quantity"
+        ]
+      }
     }
-},
-{
+  },
+  {
     "$group": {
-        "_id": "$AlbumName",
-        "TotalRevenue": {"$sum": "$TotalRevenue" }
+      "_id": "$AlbumName",
+      "TotalRevenue": {
+        "$sum": "$TotalRevenue"
+      }
     }
-},
-{
+  },
+  {
     "$sort": {
-        "TotalRevenue": -1
+      "TotalRevenue": -1
     }
-}
+  }
 ]

@@ -1,8 +1,10 @@
 [
   {
     "$match": {
-      "InvoiceLines.TrackId": {
-        "$in": []
+      "SupportRepId": {
+        "$in": [
+          3
+        ]
       }
     }
   },
@@ -10,18 +12,10 @@
     "$unwind": "$InvoiceLines"
   },
   {
-    "$lookup": {
-      "from": "Track",
-      "localField": "InvoiceLines.TrackId",
-      "foreignField": "Track.TrackId",
-      "as": "TrackVec"
-    }
-  },
-  {
     "$project": {
-      "InvoiceId": 1,
       "_id": 0,
-      "GenreName": "$TrackVec.Genre.Name",
+      "EmployeeId": "$SupportRepId",
+      "InvoiceDate": "$InvoiceDate",
       "TotalRevenue": {
         "$multiply": [
           "$InvoiceLines.UnitPrice",
@@ -32,15 +26,21 @@
   },
   {
     "$group": {
-      "_id": "$GenreName",
+      "_id": {
+        "EmployeeId": "$EmployeeId",
+        "InvoiceDate": "$InvoiceDate"
+      },
       "TotalRevenue": {
         "$sum": "$TotalRevenue"
       }
     }
   },
   {
-    "$sort": {
-      "TotalRevenue": -1
+    "$project": {
+      "_id": 0,
+      "EmployeeId": "$_id.EmployeeId",
+      "InvoiceDate": "$_id.InvoiceDate",
+      "TotalRevenue": 1
     }
   }
 ]
