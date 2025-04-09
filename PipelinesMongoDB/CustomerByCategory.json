@@ -1,0 +1,63 @@
+[
+  {
+    "$match": {
+      "CustomerId": { "$in": [] }
+    }
+  },
+  {
+    "$unwind": "$InvoiceLines"
+  },
+  {
+    "$lookup": {
+      "from": "Track",
+      "let": { "trackId": "$InvoiceLines.TrackId" },
+      "pipeline": [
+        {
+          "$match": {
+            "$expr": {
+              "$eq": [ "$Track.TrackId", "$$trackId" ]
+            }
+          }
+        }
+      ],
+      "as": "TrackVec"
+    }
+  },
+  { "$unwind": "$TrackVec" },
+  {
+    "$project": {
+        "_id": 0,
+        "CustomerId": 1,
+        "TrackName": "$TrackVec.Track.Name",
+        "AlbumName": "$TrackVec.Album.Title",
+        "ArtistName": "$TrackVec.Artist.Name",
+        "GenreName": "$TrackVec.Genre.Name",
+        "TotalRevenue":  {
+          "$multiply": [
+            "$InvoiceLines.UnitPrice",
+            "$InvoiceLines.Quantity"
+          ]
+        }
+    }
+  },
+  {
+    "$group": {
+      "_id": {
+        "CustomerId"
+        "Aggregator": "",
+      },
+      "TotalRevenue": {
+        "$sum": "$TotalRevenue"
+      }
+    }
+  },
+    {
+        "$project": {
+        "_id": 0,
+        "CustomerId": "$_id.CustomerId",
+        "TotalRevenue": "$TotalRevenue",
+        "Aggregator": "$_id.Aggregator"
+        }
+    },
+    { "$sort": { "TotalRevenue": -1 } }
+]

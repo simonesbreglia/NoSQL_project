@@ -1,0 +1,42 @@
+[
+  {
+    "$match": {
+        "CustomerId": {
+          "$in": []
+        }
+    }
+  },
+  {
+    "$unwind": "$InvoiceLines"
+  },
+  {
+    "$project": {
+      "InvoiceId": 1,
+      "_id": 0,
+      "TotalRevenue": {
+        "$multiply": ["$InvoiceLines.UnitPrice", "$InvoiceLines.Quantity"]
+      },
+      "InvoiceDate": 1,
+      "CustomerId": 1
+    }
+  },
+  {
+    "$group": {
+      "_id": {
+        "CustomerId": "$CustomerId",
+        "Date": "$InvoiceDate"
+      },
+      "TotalRevenue": {
+          "$sum": "$TotalRevenue"
+      }
+    }
+  },
+  {
+      "$project": {
+      "_id": 0,
+      "Date": "$_id.Date",
+      "CustomerId": "$_id.CustomerId",
+      "TotalRevenue": "$TotalRevenue"
+      }
+  }
+]

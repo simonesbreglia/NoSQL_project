@@ -186,6 +186,44 @@ with central_column:
                 if run:
                     run_true()
 
+    elif decision == "Sales by Customer":
+
+        result = db.Customer.find(
+            {},
+            {
+                "_id": 0,
+                "CustomerId": 1,
+                "Name": {
+                    "$concat": ["$FirstName", " ", "$LastName"]
+                }
+            }
+        )
+        result = pd.DataFrame(list(result))
+        id_to_name = {
+            _ref['CustomerId']: _ref['Name'] for _ref in result.to_dict(orient="records")
+        }
+        name_to_id = {
+            _ref['Name']: _ref['CustomerId'] for _ref in result.to_dict(orient="records")
+        }
+        customer_selected = st.multiselect(
+            label="Select Customer",
+            options=result["Name"].tolist(),
+            on_change=run_false
+        )
+        if customer_selected:
+            print(customer_selected)
+            run_query = st.button(label="Run Query", use_container_width=True)
+            if run_query:
+                run_true()
+
+
+
+
+
+
+
+
+
 if st.session_state.run == True:
     if decision == "Sales by Music":
         # grafico temporale per le vendite di ogni oggetto selezionato
@@ -220,6 +258,7 @@ if st.session_state.run == True:
 
         indexes = list(sorted(indexes, key=lambda x: values[indexes.index(x)], reverse=True))
         values = sorted(values, reverse=True)
+        values = np.round(values, decimals = 2)
 
         bar_fig = go.Figure()
         bar_fig.add_trace(
@@ -359,17 +398,17 @@ if st.session_state.run == True:
             )
         else:
             association = db.Employee.find(
-                {"EmployeeId": {"$in": selected_employees}},
+                {"EmployeeId": {"$in": selected_employees_ids}},
                 {
                     "_id": 0,
                     "EmployeeId": 1,
                     "Name": { "$concat": ["$FirstName", " ", "$LastName"] }
                 }
             )
+        association = pd.DataFrame(list(association))
         association = {
-            _ref['EmployeeId']: _ref['Name'] for _ref in association
+            _ref['EmployeeId']: _ref['Name'] for _ref in association.to_dict(orient="records")
         }
-        print("Valori association", list(association.values()))
 
 
         df_result.sort_index(level=[0, 1], inplace=True)
@@ -382,7 +421,6 @@ if st.session_state.run == True:
         ]
         for name in list(association.values()):
             if name not in indexes:
-                print("Values: ", values)
                 indexes.append(name)
                 values = np.append(values, 0.0)
 
@@ -439,3 +477,120 @@ if st.session_state.run == True:
         )
 
         st.plotly_chart(line_plot, use_container_width=True)
+
+    elif decision == "Sales by Customer":
+        ids_customer_selected = [
+            name_to_id[customer_selected] for customer_selected in customer_selected
+        ]
+        print(ids_customer_selected)
+
+        # voglio ottenere uno storico degli acquisti diviso per data, con il totale degli acquisti per ogni giorno
+        with open(path + '/PipelinesMongoDB/CustomerHistory.json') as f:
+            pipeline = json.load(f)
+        for stage in pipeline:
+            if "$match" in stage:
+                stage["$match"]["CustomerId"]["$in"] = ids_customer_selected
+
+        result = db.Invoice.aggregate(pipeline)
+        df_result = pd.DataFrame(list(result))
+        df_result['Date'] = pd.to_datetime(df_result['Date'])
+        df_result.set_index(['CustomerId', 'Date'], inplace=True)
+        df_result.sort_index(level=[0, 1], inplace=True)
+        min_date = df_result.index.get_level_values(1).min()
+        max_date = df_result.index.get_level_values(1).max()
+        date_range = pd.date_range(start=min_date, end=max_date, freq='D')
+
+        for _id in df_result.index.get_level_values(0).unique():
+            missing_dates = date_range.difference(df_result.loc[_id].index)
+            df_result = pd.concat([
+                df_result,
+                pd.DataFrame(
+                    {'TotalRevenue': 0.0},
+                    index=pd.MultiIndex.from_product([[_id],
+                                                      pd.to_datetime(
+                                                          missing_dates)],
+                                                     names=df_result.index.names))])
+
+        df_result.sort_index(level=[0, 1], inplace=True)
+        df_result = df_result.groupby(level=0).resample('ME', level=1).sum()
+
+        temp_chart = go.Figure()
+        for customer in df_result.index.get_level_values(0).unique():
+            indexes = df_result.loc[pd.IndexSlice[customer, :], :].index.get_level_values(1).unique()
+            values = df_result.loc[pd.IndexSlice[customer, :], "TotalRevenue"].values.flatten()
+
+            temp_chart.add_trace(
+                go.Scatter(
+                    x=indexes,
+                    y=values,
+                    mode="markers+lines",
+                    name=id_to_name[customer],
+                    line=dict(width=2),
+                    legendgroup=id_to_name[customer],
+                    hoverinfo="name"
+                )
+            )
+
+        temp_chart.update_layout(
+            title=dict(
+                text=f"Temporal Chart of Sales by Customer",
+                font=dict(size=20),
+                xanchor="center",
+                x=0.5,
+                yanchor="top",
+            ),
+            xaxis_title="Date",
+            yaxis_title="Total Sales ($)",
+            showlegend=True,
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=-0.5,
+                xanchor="center",
+                x=0.5,
+                itemclick = "toggleothers",
+                itemdoubleclick = "toggle",
+            )
+        )
+
+        st.plotly_chart(temp_chart, use_container_width=True)
+
+        # grafico a barre per le vendite totali
+
+        bar_fig = go.Figure()
+        values = df_result.groupby(level = 0).sum().values.flatten()
+        indexes = [
+            id_to_name[_ref] for _ref in df_result.index.get_level_values(0).unique()
+        ]
+        for name in list(customer_selected):
+            if name not in indexes:
+                indexes.append(name)
+                values = np.append(values, 0.0)
+        indexes = [x for _, x in sorted(zip(values, indexes), reverse=True)]
+        values = sorted(values, reverse=True)
+
+        bar_fig.add_trace(
+            go.Bar(
+                x = indexes,
+                y = values,
+                text = values,
+                textposition="auto",
+                textfont=dict(size=12),
+                width=0.5,
+            )
+        )
+
+        bar_fig.update_layout(
+            title=dict(
+                text=f"Total Sales by Customer",
+                font=dict(size=20),
+                xanchor="center",
+                x=0.5,
+                yanchor="top",
+            ),
+            xaxis_title="Customer",
+            yaxis_title="Total Sales ($)",
+            showlegend=False,
+        )
+
+        st.plotly_chart(bar_fig, use_container_width=True)
