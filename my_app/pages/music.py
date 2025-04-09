@@ -6,12 +6,17 @@ import requests
 import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
+import os
 
 
 st.set_page_config(page_title="Music Database", page_icon=":musical_note:", layout="wide", initial_sidebar_state = "collapsed")
 
-db = get_local_connection()
-
+if os.environ.get('DOCKER_BUILD') == "True":
+    print("Docker build detected")
+    db = get_docker_connection()
+else:
+    print("Docker build not detected")
+    db = get_local_connection()
 
 if "filters" not in st.session_state:
     st.session_state.filters = []

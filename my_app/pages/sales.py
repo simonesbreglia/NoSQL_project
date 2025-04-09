@@ -5,7 +5,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 from db_utils import get_local_connection, get_remote_connection, get_docker_connection
-
+import os
 # get parent directory
 
 
@@ -62,7 +62,13 @@ def search_employee_ids(_db, _selected_employees):
 
 path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir))
 
-db = get_local_connection()
+if os.environ.get('DOCKER_BUILD') == "True":
+    db = get_docker_connection()
+    print("Docker connection")
+else:
+    db = get_local_connection()
+    print("Local connection")
+
 
 if "run" not in st.session_state:
     st.session_state.run = False

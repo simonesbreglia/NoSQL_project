@@ -2,13 +2,25 @@
 import pandas as pd
 import numpy as np
 import os
+import sys
 
 from my_app.db_utils import get_local_connection, get_remote_connection, get_docker_connection
 
+# controlla gli argomenti in input, se trovi --docker_build allora setta una variabile d'ambiente "DOCKER_BUILD" a True
+
+if '--docker_build' in sys.argv:
+    os.environ['DOCKER_BUILD'] = "True"
+else:
+    os.environ['DOCKER_BUILD'] = "False"
 
 # client = MongoClient(uri, server_api=ServerApi('1'))
-db = get_local_connection()
 
+if os.environ.get('DOCKER_BUILD') == 'True':
+    db = get_docker_connection()
+else:
+    db = get_local_connection()
+
+print("OS: ", os.environ.get('DOCKER_BUILD'))
 
 
 Track = db['Track']

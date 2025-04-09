@@ -8,7 +8,12 @@ import requests
 def get_docker_connection():
     url = "mongodb://mongodb:27017/"
     client = MongoClient(url)
-    return client['Chinook']
+    # controlla se esiste il db Chinook
+    db = client['Chinook']
+    # elimina il db Chinook se esiste
+    if db in client.list_database_names():
+        client.drop_database(db)
+    return db["Chinook"]
 
 def get_remote_connection():
     uri = st.secrets['mongo']['uri']

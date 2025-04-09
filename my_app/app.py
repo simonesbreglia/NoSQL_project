@@ -1,16 +1,17 @@
 import streamlit as st
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
-from db_utils import get_local_connection
+from db_utils import get_local_connection, get_docker_connection
 import requests
-
+import os
 
 
 st.set_page_config(page_title="Chinook Database", page_icon=":musical_note:", layout="wide")
 
-db = get_local_connection()
-
-
+if os.environ.get('DOCKER_BUILD') == "True":
+    db = get_docker_connection()
+else:
+    db = get_local_connection()
 
 central_col_width = 0.5
 side_col_width = (1 - central_col_width) / 2
