@@ -1,0 +1,33 @@
+use Scuola
+db.createCollection("Studenti", {
+   validator: {
+      $jsonSchema: {
+         bsonType: "object",
+         title: "Validazione dell'oggetto Studente",
+         required: ["Id", "Nome", "Cognome", "Classe.Anno", "Classe.Sezione"],
+         properties: {
+            Id: { bsonType: "int" },
+            Nome: { bsonType: "string" },
+            Cognome: { bsonType: "string" },
+           	DataDiNascita: { bsonType: "date"}
+         }
+      }
+   }
+} )
+db.Studenti.createIndex({ "Id": 1 }, { unique: true })
+db.createCollection("Professori", {
+   validator: {
+      $jsonSchema: {
+         bsonType: "object",
+         title: "Validazione dell'oggetto Studente",
+         required: ["Id", "Nome", "Cognome", "Classe.Anno", "Classe.Sezione"],
+         properties: {
+            Id: { bsonType: "int" },
+            Nome: { bsonType: "string" },
+            Cognome: { bsonType: "string" },
+           	DataDiNascita: { bsonType: "date"}
+         }
+      }
+   }
+} )
+db.Professori.createIndex({ "Id": 1 }, { unique: true })
