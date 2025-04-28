@@ -12,5 +12,9 @@
 \contentsline {subsubsection}{\numberline {1.3.4}Read}{5}{subsubsection.1.3.4}%
 \contentsline {subsection}{\numberline {1.4}Aggregazione}{5}{subsection.1.4}%
 \contentsline {section}{\numberline {2}Sperimentazione}{6}{section.2}%
-\contentsline {section}{References}{8}{figure.caption.4}%
-\contentsline {section}{\numberline {A}Additional graphs and data}{9}{appendix.Alph1}%
+\contentsline {subsection}{\numberline {2.1}Introduzione}{6}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Trasformazione del database}{7}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Interrogazione del database}{8}{subsection.2.3}%
+\contentsline {subsubsection}{\numberline {2.3.1}nterrogazione della musica}{8}{subsubsection.2.3.1}%
+\contentsline {section}{References}{10}{figure.caption.6}%
+\contentsline {section}{\numberline {A}Trasformazione del database}{11}{appendix.Alph1}%

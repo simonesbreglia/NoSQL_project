@@ -28,7 +28,6 @@ Invoice = db['Invoice']
 Customer = db['Customer']
 Employee = db['Employee']
 
-# torna indietro di due cartelle
 
 if db.my_collection.estimated_document_count() == 0:
         

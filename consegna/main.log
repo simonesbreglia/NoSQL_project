@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2025/dev/Debian) (preloaded format=pdflatex 2025.4.7)  21 APR 2025 19:32
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2025/dev/Debian) (preloaded format=pdflatex 2025.4.7)  28 APR 2025 17:57
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1088,7 +1088,7 @@ Package: listings 2024/05/25 1.10b (Carsten Heinz)
  (/usr/share/texlive/texmf-dist/tex/latex/psnfss/helvet.sty
 Package: helvet 2020/03/25 PSNFSS-v9.3 (WaS) 
 )
-LaTeX Font Info:    Trying to load font information for T1+phv on input line 77.
+LaTeX Font Info:    Trying to load font information for T1+phv on input line 93.
  (/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1phv.fd
 File: t1phv.fd 2020/03/25 scalable font definitions for T1/phv.
 ) (/usr/share/texlive/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
@@ -1098,26 +1098,26 @@ File: l3backend-pdftex.def 2024-05-08 L3 backend support: PDF output (pdfTeX)
 ) (./main.aux)
 \openout1 = `main.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 77.
-LaTeX Font Info:    ... okay on input line 77.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 77.
-LaTeX Font Info:    ... okay on input line 77.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 77.
-LaTeX Font Info:    ... okay on input line 77.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 77.
-LaTeX Font Info:    ... okay on input line 77.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 77.
-LaTeX Font Info:    ... okay on input line 77.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 77.
-LaTeX Font Info:    ... okay on input line 77.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 77.
-LaTeX Font Info:    ... okay on input line 77.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 77.
-LaTeX Font Info:    ... okay on input line 77.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 77.
-LaTeX Font Info:    ... okay on input line 77.
-LaTeX Info: Redefining \it@ocap on input line 77.
-LaTeX Info: Redefining \it@ccap on input line 77.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 93.
+LaTeX Font Info:    ... okay on input line 93.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 93.
+LaTeX Font Info:    ... okay on input line 93.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 93.
+LaTeX Font Info:    ... okay on input line 93.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 93.
+LaTeX Font Info:    ... okay on input line 93.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 93.
+LaTeX Font Info:    ... okay on input line 93.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 93.
+LaTeX Font Info:    ... okay on input line 93.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 93.
+LaTeX Font Info:    ... okay on input line 93.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 93.
+LaTeX Font Info:    ... okay on input line 93.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 93.
+LaTeX Font Info:    ... okay on input line 93.
+LaTeX Info: Redefining \it@ocap on input line 93.
+LaTeX Info: Redefining \it@ccap on input line 93.
  (/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count364
@@ -1137,7 +1137,7 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 48
  (/usr/share/texlive/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
-Package hyperref Info: Link coloring ON on input line 77.
+Package hyperref Info: Link coloring ON on input line 93.
  (./main.out) (./main.out)
 \@outlinefile=\write4
 \openout4 = `main.out'.
@@ -1195,6 +1195,10 @@ LaTeX Font Info:    Font shape `T1/RobotoSlab-TLF/m/n' aliased to
 (Font)              `T1/RobotoSlab-TLF/regular/n' on input line 36.
 LaTeX Font Info:    Font shape `T1/RobotoSlab-TLF/b/n' aliased to
 (Font)              `T1/RobotoSlab-TLF/bold/n' on input line 36.
+LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 36.
+ (/usr/share/texlive/texmf-dist/tex/latex/base/t1cmtt.fd
+File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
+)
 LaTeX Font Info:    Font shape `T1/RobotoSlab-TLF/m/sc' aliased to
 (Font)              `T1/RobotoSlab-TLF/regular/sc' on input line 37.
 LaTeX Font Info:    Font shape `T1/RobotoSlab-TLF/m/sc' aliased to
@@ -1205,7 +1209,7 @@ LaTeX Font Info:    Font shape `T1/RobotoSlab-TLF/m/n' aliased to
 (Font)              `T1/RobotoSlab-TLF/regular/n' on input line 40.
 LaTeX Font Info:    Font shape `T1/RobotoSlab-TLF/b/n' aliased to
 (Font)              `T1/RobotoSlab-TLF/bold/n' on input line 40.
-<images/Logo_C_Positivo_Colore.png, id=59, 1702.36pt x 632.3625pt>
+<images/Logo_C_Positivo_Colore.png, id=77, 1702.36pt x 632.3625pt>
 File: images/Logo_C_Positivo_Colore.png Graphic file (type png)
 <use images/Logo_C_Positivo_Colore.png>
 Package pdftex.def Info: images/Logo_C_Positivo_Colore.png  used on input line 51.
@@ -1214,7 +1218,7 @@ Package pdftex.def Info: images/Logo_C_Positivo_Colore.png  used on input line 5
 
 [1
 
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texlive/texmf-dist/fonts/enc/dvips/roboto/rbto_j2bk2t.enc}{/usr/share/texlive/texmf-dist/fonts/enc/dvips/roboto/rbto_a4rth4.enc} <./images/Logo_C_Positivo_Colore.png>]) (./main.toc)
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texlive/texmf-dist/fonts/enc/dvips/roboto/rbto_j2bk2t.enc}{/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}{/usr/share/texlive/texmf-dist/fonts/enc/dvips/roboto/rbto_a4rth4.enc}{/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-t1.enc} <./images/Logo_C_Positivo_Colore.png>]) (./main.toc)
 \tf@toc=\write5
 \openout5 = `main.toc'.
 
@@ -1224,23 +1228,19 @@ Package pdftex.def Info: images/Logo_C_Positivo_Colore.png  used on input line 5
 pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.83 \newpage
-              [1{/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}]
-Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on input line 113.
-LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 113.
- (/usr/share/texlive/texmf-dist/tex/latex/base/t1cmtt.fd
-File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
-)
+l.99 \newpage
+              [1]
+Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on input line 129.
 LaTeX Font Info:    Font shape `T1/phv/m/it' in size <10> not available
-(Font)              Font shape `T1/phv/m/sl' tried instead on input line 132.
-LaTeX Font Info:    Trying to load font information for TS1+phv on input line 135.
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 148.
+LaTeX Font Info:    Trying to load font information for TS1+phv on input line 151.
  (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ts1phv.fd
 File: ts1phv.fd 2020/03/25 scalable font definitions for TS1/phv.
 )
 
-[2{/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-t1.enc}]
+[2]
 LaTeX Font Info:    Font shape `T1/cmtt/bx/n' in size <9> not available
-(Font)              Font shape `T1/cmtt/m/n' tried instead on input line 173.
+(Font)              Font shape `T1/cmtt/m/n' tried instead on input line 189.
 
 
 [3]
@@ -1248,40 +1248,70 @@ LaTeX Font Info:    Font shape `T1/cmtt/bx/n' in size <9> not available
 [4]
 
 [5]
-<images/ER_Chinook.png, id=217, 839.135pt x 568.1225pt>
+<images/ER_Chinook.png, id=242, 839.135pt x 568.1225pt>
 File: images/ER_Chinook.png Graphic file (type png)
 <use images/ER_Chinook.png>
-Package pdftex.def Info: images/ER_Chinook.png  used on input line 363.
+Package pdftex.def Info: images/ER_Chinook.png  used on input line 394.
 (pdftex.def)             Requested size: 386.95897pt x 261.981pt.
 
 
 [6]
+<images/ChinookNoSQL.drawio.png, id=252, 824.07875pt x 477.785pt>
+File: images/ChinookNoSQL.drawio.png Graphic file (type png)
+<use images/ChinookNoSQL.drawio.png>
+Package pdftex.def Info: images/ChinookNoSQL.drawio.png  used on input line 401.
+(pdftex.def)             Requested size: 386.95897pt x 224.35484pt.
 
-[7 <./images/ER_Chinook.png>] (./main.bbl)
+
+[7 <./images/ER_Chinook.png> <./images/ChinookNoSQL.drawio.png>]
+<images/screen_filtering.png, id=261, 2569.6pt x 1291.82625pt>
+File: images/screen_filtering.png Graphic file (type png)
+<use images/screen_filtering.png>
+Package pdftex.def Info: images/screen_filtering.png  used on input line 456.
+(pdftex.def)             Requested size: 386.95897pt x 194.53433pt.
+
 
 [8]
 
-[9] (./main.aux)
+[9 <./images/screen_filtering.png>] (./main.bbl)
+
+[10] (/usr/share/texlive/texmf-dist/tex/latex/listings/lstlang1.sty
+File: lstlang1.sty 2024/05/25 1.10b listings language file
+)
+
+[11]
+Overfull \hbox (80.30887pt too wide) in paragraph at lines 543--544
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+
+Overfull \hbox (374.31186pt too wide) in paragraph at lines 558--559
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+
+
+[12] (./main.aux)
  ***********
 LaTeX2e <2024-06-01> patch level 2
 L3 programming layer <2024-05-27>
  ***********
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 82B2D92A2143DDFB5B463D8C93486844;1484.
+(rerunfilecheck)             Checksum: 6D2EF4A7E833B92924FF89ED4B2E7E5C;2206.
  ) 
 Here is how much of TeX's memory you used:
- 27227 strings out of 473584
- 495593 string characters out of 5730880
+ 27557 strings out of 473584
+ 500027 string characters out of 5730880
  2078905 words of memory out of 5000000
- 49506 multiletter control sequences out of 15000+600000
- 613426 words of font info for 69 fonts, out of 8000000 for 9000
+ 49724 multiletter control sequences out of 15000+600000
+ 624682 words of font info for 84 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  99i,10n,117p,544b,2081s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</usr/share/texlive/texmf-dist/fonts/type1/google/roboto/RobotoSlab-Bold.pfb></usr/share/texlive/texmf-dist/fonts/type1/google/roboto/RobotoSlab-Regular.pfb></usr/share/texmf/fonts/type1/public/cm-super/sftt0900.pfb></usr/share/texmf/fonts/type1/public/cm-super/sftt1000.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvro8a.pfb>
-Output written on main.pdf (10 pages, 311419 bytes).
+</usr/share/texlive/texmf-dist/fonts/type1/google/roboto/RobotoSlab-Bold.pfb></usr/share/texlive/texmf-dist/fonts/type1/google/roboto/RobotoSlab-Regular.pfb></usr/share/texmf/fonts/type1/public/cm-super/sftt0800.pfb></usr/share/texmf/fonts/type1/public/cm-super/sftt0900.pfb></usr/share/texmf/fonts/type1/public/cm-super/sftt1000.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvro8a.pfb>
+Output written on main.pdf (13 pages, 529460 bytes).
 PDF statistics:
- 306 PDF objects out of 1000 (max. 8388607)
- 272 compressed objects within 3 object streams
- 130 named destinations out of 1000 (max. 500000)
- 127 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 467 PDF objects out of 1000 (max. 8388607)
+ 422 compressed objects within 5 object streams
+ 228 named destinations out of 1000 (max. 500000)
+ 169 words of extra memory for PDF output out of 10000 (max. 10000000)
 

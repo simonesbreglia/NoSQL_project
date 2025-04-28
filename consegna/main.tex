@@ -65,6 +65,22 @@
     commentstyle=\color{green!70!black},
     morekeywords={use, db, show, insert, find, update, delete, createCollection, drop, aggregate},
 }
+\lstdefinelanguage{Python}{
+    basicstyle=\ttfamily\small,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=8pt,
+    showstringspaces=false,
+    breaklines=true,
+    frame=lines,
+    backgroundcolor=\color{gray!10},
+    keywordstyle=\color{blue}\bfseries,
+    stringstyle=\color{red},
+    commentstyle=\color{green!70!black},
+    morekeywords={import, from, class, def, return, if, elif, else, for, while, in, try, except, with, as, pass, break, continue, True, False, None},
+}
+
 \geometry{a4paper, margin=2cm}
 \definecolor{unimorered}{RGB}{209,65,36}
 \definecolor{unimoregrey}{RGB}{99,102,106}
@@ -350,13 +366,28 @@ ottimizzazioni e le potenzialità di MongoDB. Per alcuni esempi, vedere la Sezio
 \section{Sperimentazione}
 \label{sec:Sperimentazione}
 
+\subsection{Introduzione}
+
 Lo scopo del progetto è quello di sviluppare competenze legate a MongoDB, capire come funziona, come 
 gestire i dati e come sfruttare il database da altri linguaggi di programmazione, come ad esempio Python.
 
 A tale scopo è stato scelto un dataset, chiamato Chinook Database \cite{ChinookDataset}. Il database originale
 è un database relazionale, composto da 11 tabelle, che raccolgono informazioni su tracce musicali, artisti, album e alcune playlist,
-insieme alle informaioni sulle vendite, sui clienti e sugli impiegati del negozio musicale. In Figura~\ref{fig:chinook_schema} è 
-riportato lo schema del database originale, composto da 11 tabelle. Il database è stato convertito in un formato NoSQL,
+insieme alle informazioni sulle vendite, sui clienti e sugli impiegati del negozio musicale. In Figura~\ref{fig:chinook_schema} è 
+riportato lo schema del database originale, composto da 11 tabelle. Il database è stato convertito in un formato NoSQL, creando quattro collezioni:
+\begin{itemize}
+    \item \textit{Customer}: contiene le informazioni sui clienti
+    \item \textit{Employee}: contiene le informazioni sugli impiegati
+    \item \textit{Invoice}: contiene le informazioni sulle fatture
+    \item \textit{Track}: contiene le informazioni sulle tracce musicali
+\end{itemize}
+Trasformando il database seguendo questa struttura si sfruttano le potenzialità di MongoDB, riducendo il numero di join e aumentando le prestazioni in fase di 
+lettura dei dati. In Figura~\ref{fig:chinook_nosql_schema} è riportato lo schema del database NoSQL.
+
+Il repository indicato contiene il codice sorgente del progetto e i dati utilizzati durante la sperimentazione. La struttura del repository
+e le istruzioni per l'installazione sono riportate nel file \textit{README.md}. Nel resto della sezione verranno approfonditi 
+alcuni aspetti del progetto, in particolare la trasformazione del database e l'interrogazione del database.
+
 
 \begin{figure}[H]
     \centering
@@ -365,6 +396,70 @@ riportato lo schema del database originale, composto da 11 tabelle. Il database 
     \label{fig:chinook_schema}
 \end{figure}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/ChinookNoSQL.drawio.png}
+    \caption{Schema del database Chinook NoSQL}
+    \label{fig:chinook_nosql_schema}
+\end{figure}
+
+\subsection{Trasformazione del database}
+
+Come introdotto nella sottosezione precedente, il database originale è stato trasformato in un formato adatto
+a un database NoSQL, puntando a ridurre il numero di join e a sfruttare la potenza e la flessibilità di MongoDB.
+Per ridurre il numero di join durante le query, le informazioni relative alla musica sono state incorportate in un unico documento per ogni traccia
+presente nel database. Questo approccio genera rindondanza, nel senso che ogni albub, ogni artista e ogni genere viene salvato
+più volte, una pper ogni traccia, ma permette di ridurre il numero di operazioni con l'operatoe \texttt{\$lookup} e di velocizzare le operazioni di lettura, essendo questo il più costoso.
+
+Per quanto riguarda le informazioni relative a clienti, impiegati e fatture, sono state create tre collezioni separate. La motivazione è che ogni fattura si collega a un cliente, un impiegato e un certo numero di tracce musiciali
+in base all'acquisto. Creare una collezione unica per le fatture avrebbe implicato la rindondanza delle informazioni relative a clienti e impiegati, contenenti una discreta quantità di dati. Questo approccio permette quindi 
+di risparmiare spazio e effettuare un piccolo numero di join, non ottimale ma le prestazioni non ne risentono nella maggior parte dei casi.
+
+Per inserire i dati nel database sono stati utilizzati due script python, uno che fornisce delle funzioni per la connessione a MongoDB in vari casi: locale, remoto o in Docker, e uno che si occupa di trasformare i dati 
+da formato CSV a formato JSON, per poi inserirli nel database. Il codice sorgente per la connessione a MongoDB si trova nel file \textit{db\_utils.py} mentre il codice per la trasformazione del database si trova nel file
+\textit{transform\_db.py}. 
+
+\subsection{Interrogazione del database}
+
+Per rendere il progetto fruibile e per permettere di interrogare il database in modo semplice e veloce è stata sviluppata un'interfaccia grafica tramite la libreria Streamlit, una libreria Python che permette di creare
+applicazioni web in modo semplice e veloce. L'applicazione si compone di tre pagine, rappresentate da tre file Python:
+\begin{itemize}
+    \item \textit{app.py}: pagina principale, reindirizza alle altre due pagine in base alla scelta dell'utente
+    \item \textit{music.py}: pagina dedicata alla musica, permette di interrogare il database per ottenere informazioni su tracce, album e artisti
+    \item \textit{sales.py}: pagina dedicata alle vendite, permette di interrogare il database per ottenere informazioni su fatture, clienti, impiegati e statistiche di vendite
+\end{itemize}
+
+Per avviare l'applicazione fare riferimento al file \textit{README.md} presente nel repository. 
+
+\subsubsection{nterrogazione della musica}
+La pagina dedicata alla musica permette di interrogare il database per ottenere informazioni su tracce, album e artisti. In particolare offre la possibilità di effettuare
+tre tipi di query: contare, raggruppare e contare, filtrare. 
+
+Per quanto riguarda le query di conteggio, è possibile contare il numero di tracce, album, artisti, playlist e generi.
+
+Per le query di raggruppamento invece è possibile contare: 
+\begin{itemize}
+    \item numero di tracce per album
+    \item numero di tracce per genere
+    \item numero di tracce per artista
+    \item numero di tracce per playlist
+    \item numero di artisti per playlist
+    \item numero di album per artista
+\end{itemize}
+
+La parte dedicata al filtaggio invece è più complessa e permette di creare filtri personalizzati per ricercare tracce, albubm, artisti e qualsiasi dato presente nel database. L'esempio mostrato in Figura~\ref{fig:filtering}
+mostra ad esempio una serie di filtri che vanno a cercare tutte le tracce che hanno come artista "AC/DC" e che hanno una lunghezza compresa tra i 3 minuti e i 4 minuti. Inoltre è possibile selezionare
+le informazioni da visualizzare, come ad esempio il costo della traccia, il genere, il nome dell'album, ecc. Questo strumento permette di creare query di ricerca personalizzate, concatendando i vari filtri.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/screen_filtering.png}
+    \caption{Esempio di filtri per la musica}
+    \label{fig:filtering}
+\end{figure}
+
+
+
 \newpage
 \addcontentsline{toc}{section}{References}
 \bibliographystyle{apalike}
@@ -372,7 +467,100 @@ riportato lo schema del database originale, composto da 11 tabelle. Il database 
 
 \newpage
 \appendix
-\section{Additional graphs and data}
+\section{Trasformazione del database}
+\label{sec:Trasformazione}
+Il codice nel Listato \ref{lst:connessione_mongo} mostra le funzioni per la connessione a MongoDB, in ambiente Docker, in locale o su MongoDB Atlas.
+\begin{lstlisting}[language=Python, caption={Connessione a MongoDB}, label={lst:connessione_mongo}]
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
+
+def get_docker_connection():
+    url = "mongodb://mongodb:27017/"
+    client = MongoClient(url)
+    # controlla se esiste il db Chinook
+    db = client['Chinook']
+    # elimina il db Chinook se esiste
+    if db in client.list_database_names():
+        client.drop_database(db)
+    return db["Chinook"]
+
+def get_remote_connection():
+    uri = st.secrets['mongo']['uri']
+    client = MongoClient(uri, server_api=ServerApi('1'))
+    return client['Chinook']
+
+def get_local_connection():
+    url = "mongodb://localhost:27017/"
+    client = MongoClient(url)
+    return client['Chinook']
+
+def pin_g_mongo(client):
+    try:
+        client.admin.command('ping')
+    except Exception as e:
+        return False
+    return True
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption={Inserimento della collezione Track}, label={lst:trasformazione}]
+
+if os.environ.get('DOCKER_BUILD') == 'True':
+    db = get_docker_connection()
+else:
+    db = get_local_connection()
+
+Track = db['Track']
+Invoice = db['Invoice']
+Customer = db['Customer']
+Employee = db['Employee']
+    
+dfs = {}
+table_names = ['Album', 'Artist', 'Customer', 'Employee', 'Genre', 
+                'Invoice', 'InvoiceLine', 'MediaType',
+                 'Playlist', 'PlaylistTrack', 'Track']
+path = 'data/ChinookDataset/'
+for table in table_names:
+    dfs[table] = pd.read_csv(path + table + '.csv')
+    dfs[table].index = np.arange(1, len(dfs[table]) + 1)
+
+for i in range(len(dfs['Track'])):
+    record = dfs['Track'].loc[i+1]
+    entry = {
+        "Track": {
+            "TrackId": int(record['TrackId']),
+            "Name": record['Name'],
+        "Composer": record['Composer'],
+            "Milliseconds": int(record['Milliseconds']),
+            "Bytes": int(record['Bytes']),
+            "UnitPrice": float(record['UnitPrice'])
+        },
+        "Album": {
+            "AlbumId": int(record['AlbumId']),
+            "Title": dfs['Album'].loc[record['AlbumId']]['Title']
+        },
+        "Artist": {
+            "ArtistId": int(dfs['Album'].loc[record['AlbumId']]['ArtistId']),
+            "Name": dfs['Artist'].loc[dfs['Album'].loc[record['AlbumId']]['ArtistId']]['Name']
+        },
+        "MediaType": {
+            "MediaTypeId": int(record['MediaTypeId']),
+            "Name": dfs['MediaType'].loc[record['MediaTypeId']]['Name']
+        },
+        "Genre": {
+            "GenreId": int(record['GenreId']),
+            "Name": dfs['Genre'].loc[record['GenreId']]['Name']
+        },
+        "Playlist": [
+            {
+                "PlaylistId": int(actual_record['PlaylistId']),
+                "Name": dfs['Playlist'].loc[actual_record['PlaylistId']]['Name']
+            }
+            for actual_record in dfs['PlaylistTrack'].loc[dfs['PlaylistTrack']['TrackId'] == (record['TrackId'] + 1)].to_dict(orient='records')
+        ]
+    }
+
+    Track.insert_one(entry)
+\end{lstlisting}
 
         
 \end{document}
