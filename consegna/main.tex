@@ -66,7 +66,7 @@
     morekeywords={use, db, show, insert, find, update, delete, createCollection, drop, aggregate},
 }
 \lstdefinelanguage{Python}{
-    basicstyle=\ttfamily\small,
+    basicstyle=\ttfamily\tiny,
     numbers=left,
     numberstyle=\tiny\color{gray},
     stepnumber=1,
@@ -361,7 +361,7 @@ sono riportati i principali operatori di aggregazione disponibili in MongoDB. Pe
     \label{tab:operatori_aggregazione}
 \end{table}
 La concatenazione di pipeline di aggregazione permette di eseguire operazioni complesse direttamente sul database, sfruttando tutte le
-ottimizzazioni e le potenzialità di MongoDB. Per alcuni esempi, vedere la Sezione \ref{sec:Sperimentazione}.
+ottimizzazioni e le potenzialità di MongoDB. Per alcuni esempi, vedere la Sezione ~\ref{sec:Sperimentazione}.
     
 \section{Sperimentazione}
 \label{sec:Sperimentazione}
@@ -421,17 +421,14 @@ da formato CSV a formato JSON, per poi inserirli nel database. Il codice sorgent
 
 \subsection{Interrogazione del database}
 
-Per rendere il progetto fruibile e per permettere di interrogare il database in modo semplice e veloce è stata sviluppata un'interfaccia grafica tramite la libreria Streamlit, una libreria Python che permette di creare
-applicazioni web in modo semplice e veloce. L'applicazione si compone di tre pagine, rappresentate da tre file Python:
-\begin{itemize}
-    \item \textit{app.py}: pagina principale, reindirizza alle altre due pagine in base alla scelta dell'utente
-    \item \textit{music.py}: pagina dedicata alla musica, permette di interrogare il database per ottenere informazioni su tracce, album e artisti
-    \item \textit{sales.py}: pagina dedicata alle vendite, permette di interrogare il database per ottenere informazioni su fatture, clienti, impiegati e statistiche di vendite
-\end{itemize}
+L'interrogazione del database si divide in due parti: la parte musicale e la parte dedicata alle vendite.
 
-Per avviare l'applicazione fare riferimento al file \textit{README.md} presente nel repository. 
+La sezione musicale permette di interrogare il database per ottenere informazioni su tracce, album e artisti. La sezione vendite invece
+permette di interrogare il database per ottenere informazioni su fatture, clienti, impiegati e statistiche di vendita.
 
-\subsubsection{nterrogazione della musica}
+Nel seguito sono riportati alcuni esempi di query per entrambe le sezioni.
+
+\subsubsection{Musica}
 La pagina dedicata alla musica permette di interrogare il database per ottenere informazioni su tracce, album e artisti. In particolare offre la possibilità di effettuare
 tre tipi di query: contare, raggruppare e contare, filtrare. 
 
@@ -447,16 +444,96 @@ Per le query di raggruppamento invece è possibile contare:
     \item numero di album per artista
 \end{itemize}
 
+Nei listati ~\ref{lst:query_conteggio} e ~\ref{lst:query_raggruppamento} sono riportati due esempi di query di conteggio e di raggruppamento.
+
 La parte dedicata al filtaggio invece è più complessa e permette di creare filtri personalizzati per ricercare tracce, albubm, artisti e qualsiasi dato presente nel database. L'esempio mostrato in Figura~\ref{fig:filtering}
 mostra ad esempio una serie di filtri che vanno a cercare tutte le tracce che hanno come artista "AC/DC" e che hanno una lunghezza compresa tra i 3 minuti e i 4 minuti. Inoltre è possibile selezionare
 le informazioni da visualizzare, come ad esempio il costo della traccia, il genere, il nome dell'album, ecc. Questo strumento permette di creare query di ricerca personalizzate, concatendando i vari filtri.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/screen_filtering.png}
-    \caption{Esempio di filtri per la musica}
-    \label{fig:filtering}
-\end{figure}
+Il codice sorgente per il filtraggio della musica in modo dinamico comprende una parte che si occupa di creare i filtri, gestita
+completamente da Streamlit, e una parte che si occupa di eseguire la query sul database, costruendola sulla base dei filtri aggiunti.
+Nel listato ~\ref{lst:query_filter} è riportato il codice sorgente per la costruzione della query.
+
+\subsubsection{Vendite}
+La pagina dedicata alle vendite permette di ottenere informazioni su fatture, clienti, impiegati e statistiche di vendita. In particolare offre la possibilità di visualizzare:
+\begin{itemize}
+    \item vendite per cliente totali e distribuite nel tempo
+    \item vendite per impiegato totali e distribuit nel tempo
+    \item vendite in base alla musica divisa per traccia, album, artista o genere
+\end{itemize}
+    
+Questo tipo di query richiede più operazioni rispetto alle query della sezione precedente, in quanto è richiesto di effettuare dei join, dei filtri in base a cosa si seleziona, dei raggruppamenti
+in base alla data di vendita, al cliente, all'impiegato o infine in base al filtro musicale selzionato. Per ogni tipo di query sono state scritte delle pipeline, salvate in formato JSON, a cui vanno aggiunti in modo dinamico
+gli Id delle tracce, degli album, degli artisti, dei generi, dei clienti e degli impiegati, in base al tipo di query selezionato. Le query sono raccolte nella cartella \tesxtit{PipelinesMongoDB}.
+Per un esempio di query vedere il listato ~\ref{lst:query_pipeline}.
+
+\section{Interfaccia grafica}
+Per rendere fruibile il progetto e per interrogare il database in modo dinamico è stata sviluppata un'interfaccia grafica utilizzando
+la libreria Python Streamlit. L'interfaccia è composta da tre pagine:
+\begin{itemize}
+    \item \textit{app.py}: pagina principale, reindirizza alle altre due pagine in base alla scelta dell'utente
+    \item \textit{music.py}: pagina dedicata alla musica, permette di interrogare il database per ottenere informazioni su tracce, album e artisti
+    \item \textit{sales.py}: pagina dedicata alle vendite, permette di interrogare il database per ottenere informazioni su fatture, clienti, impiegati e statistiche di vendite
+\end{itemize}
+
+Nel seguito vengono descritte le due pagine principali, \textit{music.py} e \textit{sales.py}.
+
+\subsection{music.py}
+La pagina dedicata alla musica offre una prima scelta tramite un menù a tendina, che permette di selezionare il tipo di query da eseguire.
+Le query disponibili sono di conteggio, di ragguppamento o di filtraggio. Per le prime due opzioni viene poi presentato un ulteriore menù
+a tendina che permette di selezionare il tipo di conteggio o di raggruppamento da eseguire. Se invece viene selezionato il filtraggio,
+viene aperta una sezione che permette di aggiungere filtri a piacimento per la musica. Comparirà un tasto \textit{Add filter} che permette di aggiungere
+un filtro usando le finestre che compariranno. Ogni filtro puà essere rimosso in qualsiasi momento. Cliccando sul tasto \textit{Execute query} 
+verrà eseguita la query e verranno mostrati i risultati in una tabella, dove le colonne mostrate sono quelle selezionate in faso di filtraggio.
+
+Questo strumento, nella sua semplicità, concatena un filtro dopo l'altro, permettendo all'utente di trovare tutta la musica disponiibile sul 
+catalogo che soddisfa determinati parametri. Inolte, la possibilità di selezionare le colonne da visualizzare permette all'utente di 
+non vedere informazioni non necessarie, rendendo la tabella pià leggibile e comprensibile.
+
+\subsection{sales.py}
+In questa sezione viene presentato un primo menù a tendine che permette di selezionare il tipo di query da eseguire. Le opzioni sono:
+\begin{itemize}
+    \item \textit{Sales by Employee}
+    \item \textit{Sales by Customer}
+    \item \textit{Sales by Music}
+\end{itemize}
+
+\textbf{Sales by Employee} permette di selezionare uno o più ruoli di impiegati e poi uno o più impiegati in base ai ruoli scelti. Schiacciando poi sul tasto
+\textit{Execute query} verrà eseguita la query e verranno mostrati due grafici: uno per le vendite totali per impiegato, e uno per le vendite distribuite nel tempo per impiegato.
+
+\textbf{Sales by Customer} permette di selezionare uno o più clienti e disegna due grafici: uno per gli acquisti totali per cliente e uno per gli acquisti distribuiti nel tempo per cliente.
+
+\textbf{Sales by Music} permette di selezionare un'opzione tra traccia, album, artista o genere. In base alla selezione compariranno le tracce, gli album, gli artisti o i generi
+disponibili. L'utente può selezionare uno o più elementi e poi schiacciare sul tasto \textit{Execute query}. Verranno mostrati due grafici: uno per le vendite totali
+per elemento selezionato e uno per le vendite distribuite nel tempo per elemento selezionato. In questo modo, ad esempio, è possibile comparare le vendite dei vari generi musicali.
+
+
+Tutti i grafici sono interattivi e permettono di escludere informazioni, ingrandire o rimpicciolire i grafici, e di visualizzare le informazioni in modo più chiaro.
+
+Inoltre, tutti i menù a tendina che compaiono sfruttano delle query eseguite su MongoDB, in modo da ottenere gli Id degli elementi selezionati. Le funzionalità
+di MongoDB non vengono sfruttate solo per le query, ma anche per la costruzione di questi menù a tendina dinamici.    
+
+
+\section{Conclusioni}
+In questo report sono stati presentati i principali aspetti di MongoDB, tuttavia la funzionalità di questo database sono molteplici e non tutte
+possono essere sfruttate con il database Chinook. Durante la sperimentazioni ho personalmente avuto modo di approfindire le funzionalità
+di MongoDB, in particolare le operazioni CRUD e le pipeline di aggregazione, che rappresentano uno strumento indispensabile per interrogare
+in modo efficiente il database. Inoltre ho avuto modo di imparare a utilizzare i driver MongoDB, in particolare il driver pymongo, che permette
+di utilizzare MongoDB in modo semplice, veloce e dinamico. La possibilità di implementare script in Python per manipolare, interrogae e visualizzare
+i dati offre un'ottima oppurtinità per approfondire le proprie conoscenze per entrambi gli strumenti.
+
+Per quanto riguarda le prestazioni di MongoDB, alcune query eseguite sono piuttosto pesanti per un database NoSQL, in quanto richiedono
+un numero di join elevato e una serie di filtri e raggruppamenti. Tuttavia, MongoDB riesce a gestire in modo efficiente anche questo tipo di query. 
+La flessibilità di poter salvare i dati in documenti JSON, unita alla capacità di eseguire operazioni complesse tramite pipeline di aggregazione,
+rende MongoDB uno strumento potente e versatile per la gestione dei dati. Inoltre, la possibilità di scalare orizzontalmente il database
+e di distribuire i dati su più macchine permette di gestire grandi volumi di dati in modo efficiente.
+
+A progetto concluso ho avuto l'opportunitò di utilizzare MongoDB al di fuori del contesto universitario, in un progetto aziendale in cui 
+mi sono ritrovato a dover gestire lo storage di un grande volume di documenti, in particolare i dati venivano registrati con una frequenza media
+di 4ms. MongoDB si è rilevato uno strumento utile, in grado di gestire questa frequenza di inserimento di dati, senza rallentare il flusso generale
+del progetto in questione.
+
+
 
 
 
@@ -467,9 +544,13 @@ le informazioni da visualizzare, come ad esempio il costo della traccia, il gene
 
 \newpage
 \appendix
+
 \section{Trasformazione del database}
+
 \label{sec:Trasformazione}
-Il codice nel Listato \ref{lst:connessione_mongo} mostra le funzioni per la connessione a MongoDB, in ambiente Docker, in locale o su MongoDB Atlas.
+
+Il codice nel Listato ~\ref{lst:connessione_mongo} mostra le funzioni per la connessione a MongoDB, in ambiente Docker, in locale o su MongoDB Atlas.
+
 \begin{lstlisting}[language=Python, caption={Connessione a MongoDB}, label={lst:connessione_mongo}]
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
@@ -503,7 +584,6 @@ def pin_g_mongo(client):
 \end{lstlisting}
 
 \begin{lstlisting}[language=Python, caption={Inserimento della collezione Track}, label={lst:trasformazione}]
-
 if os.environ.get('DOCKER_BUILD') == 'True':
     db = get_docker_connection()
 else:
@@ -540,7 +620,8 @@ for i in range(len(dfs['Track'])):
         },
         "Artist": {
             "ArtistId": int(dfs['Album'].loc[record['AlbumId']]['ArtistId']),
-            "Name": dfs['Artist'].loc[dfs['Album'].loc[record['AlbumId']]['ArtistId']]['Name']
+            "Name": dfs['Artist'].loc[dfs['Album'].loc[
+                ecord['AlbumId']]['ArtistId']]['Name']
         },
         "MediaType": {
             "MediaTypeId": int(record['MediaTypeId']),
@@ -555,12 +636,145 @@ for i in range(len(dfs['Track'])):
                 "PlaylistId": int(actual_record['PlaylistId']),
                 "Name": dfs['Playlist'].loc[actual_record['PlaylistId']]['Name']
             }
-            for actual_record in dfs['PlaylistTrack'].loc[dfs['PlaylistTrack']['TrackId'] == (record['TrackId'] + 1)].to_dict(orient='records')
+            for actual_record in dfs['PlaylistTrack'].loc[
+                dfs['PlaylistTrack']['TrackId'] == (
+                    record['TrackId'] + 1)].to_dict(orient='records')
         ]
     }
 
     Track.insert_one(entry)
 \end{lstlisting}
+
+\section{Interrogazione del database: parte musicale}
+
+
+Nel listato ~\ref{lst:query_conteggio} è mostrato il codice di una funzione che permette di contare il numero di tracce distinte nel database, riportando solo il nome
+della traccia. La funzione restituisce i nomi distinti delle tracce e una lista che contiene i nomi delle colonne da visualizzare nell'interfaccia grafica.
+
+\begin{lstlisting}[language=Python, caption={Esempio di query di conteggio}, label={lst:query_conteggio}]
+def count_tracks():
+    return db.Track.distinct("Track.Name"), ["Number of Tracks", "Track Title"]
+\end{lstlisting}
+
+Nel listato ~\ref{lst:query_raggruppamento} è mostrato il codice di una funzione che permette di raggruppare le tracce in base
+all'album e di contarle. La funzione restituisce solamente il risultato della query, mentre i nomi delle colonne da
+visualizzare sono impliciti grazie alla proiezione. Il resto delle query di raggruppamento sono simili.
+
+\begin{lstlisting}[language=Python, caption={Esempio di query di raggruppamento}, label={lst:query_raggruppamento}]
+def count_songs_per_album():
+    return list(db.Track.aggregate([
+        {"$group": {"_id": "$Album.Title", "count": {"$sum": 1}}},
+        {"$project": {"_id": 0, "Album": "$_id", "Number of tracks": "$count"}},
+        {"$sort": {"Number of tracks": -1}}
+    ])), None
+\end{lstlisting}
+
+Nel listato ~\ref{lst:query_filter} è mostrato il codice di una funzione che permette di filtrare le tracce in base 
+ai filtri selezionati dall'utente. Per il codice completo si rimanda al file \textit{music.py} presente nel repository.
+
+\begin{lstlisting}[language=Python, caption={Esempio di query di filtraggio}, label={lst:query_filter}]
+if st.button("Execute query"):
+    and_filters = []
+    project = {}
+    for f in st.session_state.filters:
+        if f['field'] is not None and 
+            f['operator'] is not None and
+             f['value'] is not None:
+            query = {fields[f["field"]]: {operator_map[f["operator"]]: f["value"]}}
+            and_filters.append(query)
+
+    project = {
+        "_id": 0,
+        "Track Name": "$Track.Name" if "Track Name" in sel_col else None,
+        "Album Title": "$Album.Title" if "Album Title" in sel_col else None,
+        "Genre": "$Genre.Name" if "Genre" in selected_col else None,
+        "Artist Name": "$Artist.Name" if "Artist Name" in sel_col else None,
+        "Composer": "$Track.Composer" if "Composer" in sel_col else None,
+        "Playlist Name": "$Playlist.Name" if "Playlist Name" in sel_col else None,
+        "Track length": "$Track.Milliseconds" if "Track length" in sel_col else None,
+        "Price": "$Track.UnitPrice" if "Price" in sel_col else None,
+        "Media type": "$MediaType.Name" if "Media type" in sel_col else None
+    }
+
+    # elimina le chiavi con valore None
+    project = {k: v for k, v in project.items() if v is not None}
+
+    query = {"$and": and_filters} if and_filters else {}
+    # Esegui la query
+    query_result = list(db.Track.find(query, project))
+
+    # trasforma i millisecondi in minuti e secondi
+    for q in query_result:
+        if "Track length" in q:
+            q["Track length"] = f"{q['Track length'] // 60000}:"
+                "{(q['Track length'] % 60000) // 1000:02}"
+
+    # Visualizza il risultato
+    st.write(f"Number of results: {len(query_result)}")
+    st.dataframe(query_result)
+\end{lstlisting}
+
+\begin{lstlisting}[language = json, caption={Esempio di pipeline di aggregazione}, label={lst:query_pipeline}]
+[
+    {
+        "$match": {
+        "InvoiceLines.TrackId": { "$in": [] }
+        }
+    },
+    {
+        "$unwind": "$InvoiceLines"
+    },
+    {
+        "$lookup": {
+        "from": "Track",
+        "let": { "trackId": "$InvoiceLines.TrackId" },
+        "pipeline": [
+            {
+            "$match": {
+                "$expr": {
+                "$eq": [ "$Track.TrackId", "$$trackId" ]
+                }
+            }
+            }
+        ],
+        "as": "TrackVec"
+        }
+    },
+    { "$unwind": "$TrackVec" },
+    {
+        "$project": {
+        "_id": 0,
+        "TrackName": "$TrackVec.Track.Name",
+        "Date": "$InvoiceDate",
+        "TotalRevenue": {
+            "$multiply": [ "$InvoiceLines.UnitPrice", "$InvoiceLines.Quantity" ]
+        }
+        }
+    },
+    {
+        "$group": {
+        "_id": {
+            "TrackName": "$TrackName",
+            "Date": "$Date"
+        },
+        "TotalRevenue": { "$sum": "$TotalRevenue" }
+        }
+    },
+    {
+        "$project": {
+        "_id": 0,
+        "TrackName": "$_id.TrackName",
+        "Date": "$_id.Date",
+        "TotalRevenue": "$TotalRevenue"
+        }
+    },
+    { "$sort": { "_id.Date": 1, "TotalRevenue": -1 } }
+]
+    
+\end{lstlisting}
+
+
+
 
         
 \end{document}

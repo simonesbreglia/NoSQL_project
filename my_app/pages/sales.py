@@ -373,116 +373,119 @@ if st.session_state.run == True:
             if "$match" in stage:
                 stage["$match"]["SupportRepId"]["$in"] = selected_employees_ids
                 break
-
         results = db.Invoice.aggregate(pipeline)
         df_result = pd.DataFrame(list(results))
-        df_result['InvoiceDate'] = pd.to_datetime(df_result['InvoiceDate'])
-        df_result.set_index(['EmployeeId', 'InvoiceDate'], inplace=True)
-        df_result.sort_index(level=[0, 1], inplace=True)
-        min_date = df_result.index.get_level_values(1).min()
-        max_date = df_result.index.get_level_values(1).max()
-        date_range = pd.date_range(start=min_date, end=max_date, freq='D')
-
-        for employee_id in df_result.index.get_level_values(0).unique():
-            missing_dates = date_range.difference(df_result.loc[employee_id].index)
-            df_result = pd.concat([
-                df_result,
-                pd.DataFrame(
-                    {'TotalRevenue': 0.0},
-                    index=pd.MultiIndex.from_product(
-                        [[employee_id], pd.to_datetime(missing_dates)], names=df_result.index.names)
-                )
-            ])
-        if len(employee_role) > 1:
-            association = db.Employee.find(
-                {"EmployeeId": {"$in": selected_employees_ids}},
-                {
-                    "_id": 0,
-                    "EmployeeId": 1,
-                    "Name": { "$concat": ["$FirstName", " ", "$LastName", " - ", "$Title"] }
-                }
-            )
+        
+        if len(df_result) == 0:
+            st.warning("No results found for the selected employees.")
         else:
-            association = db.Employee.find(
-                {"EmployeeId": {"$in": selected_employees_ids}},
-                {
-                    "_id": 0,
-                    "EmployeeId": 1,
-                    "Name": { "$concat": ["$FirstName", " ", "$LastName"] }
-                }
-            )
-        association = pd.DataFrame(list(association))
-        association = {
-            _ref['EmployeeId']: _ref['Name'] for _ref in association.to_dict(orient="records")
-        }
+            df_result['InvoiceDate'] = pd.to_datetime(df_result['InvoiceDate'])
+            df_result.set_index(['EmployeeId', 'InvoiceDate'], inplace=True)
+            df_result.sort_index(level=[0, 1], inplace=True)
+            min_date = df_result.index.get_level_values(1).min()
+            max_date = df_result.index.get_level_values(1).max()
+            date_range = pd.date_range(start=min_date, end=max_date, freq='D')
+
+            for employee_id in df_result.index.get_level_values(0).unique():
+                missing_dates = date_range.difference(df_result.loc[employee_id].index)
+                df_result = pd.concat([
+                    df_result,
+                    pd.DataFrame(
+                        {'TotalRevenue': 0.0},
+                        index=pd.MultiIndex.from_product(
+                            [[employee_id], pd.to_datetime(missing_dates)], names=df_result.index.names)
+                    )
+                ])
+            if len(employee_role) > 1:
+                association = db.Employee.find(
+                    {"EmployeeId": {"$in": selected_employees_ids}},
+                    {
+                        "_id": 0,
+                        "EmployeeId": 1,
+                        "Name": { "$concat": ["$FirstName", " ", "$LastName", " - ", "$Title"] }
+                    }
+                )
+            else:
+                association = db.Employee.find(
+                    {"EmployeeId": {"$in": selected_employees_ids}},
+                    {
+                        "_id": 0,
+                        "EmployeeId": 1,
+                        "Name": { "$concat": ["$FirstName", " ", "$LastName"] }
+                    }
+                )
+            association = pd.DataFrame(list(association))
+            association = {
+                _ref['EmployeeId']: _ref['Name'] for _ref in association.to_dict(orient="records")
+            }
 
 
-        df_result.sort_index(level=[0, 1], inplace=True)
-        df_result = df_result.groupby(level=0).resample('ME', level=1).sum()
+            df_result.sort_index(level=[0, 1], inplace=True)
+            df_result = df_result.groupby(level=0).resample('ME', level=1).sum()
 
-        bar_fig = go.Figure()
-        values = df_result.groupby(level = 0).sum().values.flatten()
-        indexes = [
-            association[_ref] for _ref in df_result.index.get_level_values(0).unique()
-        ]
-        for name in list(association.values()):
-            if name not in indexes:
-                indexes.append(name)
-                values = np.append(values, 0.0)
+            bar_fig = go.Figure()
+            values = df_result.groupby(level = 0).sum().values.flatten()
+            indexes = [
+                association[_ref] for _ref in df_result.index.get_level_values(0).unique()
+            ]
+            for name in list(association.values()):
+                if name not in indexes:
+                    indexes.append(name)
+                    values = np.append(values, 0.0)
 
-        indexes = [x for _, x in sorted(zip(values, indexes), reverse=True)]
-        values = sorted(values, reverse=True)
-        bar_fig.add_trace(
-            go.Bar(
-                x = indexes,
-                y = values,
-                text = values,
-                textposition="auto",
-                textfont=dict(size=12),
-                width=0.5,
-            )
-        )
-
-        st.plotly_chart(bar_fig, use_container_width=True)
-
-        # temporal chart
-
-        line_plot = go.Figure()
-        for employee in df_result.index.get_level_values(0).unique():
-            indexes = df_result.loc[pd.IndexSlice[employee, :], :].index.get_level_values(1).unique()
-            values = df_result.loc[pd.IndexSlice[employee, :], "TotalRevenue"].values.flatten()
-
-            line_plot.add_trace(
-                go.Scatter(
-                    x=indexes,
-                    y=values,
-                    mode="markers+lines",
-                    name=association[employee],
-                    line=dict(width=2),
+            indexes = [x for _, x in sorted(zip(values, indexes), reverse=True)]
+            values = sorted(values, reverse=True)
+            bar_fig.add_trace(
+                go.Bar(
+                    x = indexes,
+                    y = values,
+                    text = values,
+                    textposition="auto",
+                    textfont=dict(size=12),
+                    width=0.5,
                 )
             )
 
-        line_plot.update_layout(
-            title=dict(
-                text=f"Temporal Chart of Sales by Employee",
-                font=dict(size=20),
-                xanchor="center",
-                x=0.5,
-                yanchor="top",
-            ),
-            xaxis_title="Date",
-            yaxis_title="Total Sales ($)",
-            showlegend=True,
-            legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=-0.5,
-                xanchor="center",
-                x=0.5
-            ),
-        )
+            st.plotly_chart(bar_fig, use_container_width=True)
 
-        st.plotly_chart(line_plot, use_container_width=True)
+            # temporal chart
+
+            line_plot = go.Figure()
+            for employee in df_result.index.get_level_values(0).unique():
+                indexes = df_result.loc[pd.IndexSlice[employee, :], :].index.get_level_values(1).unique()
+                values = df_result.loc[pd.IndexSlice[employee, :], "TotalRevenue"].values.flatten()
+
+                line_plot.add_trace(
+                    go.Scatter(
+                        x=indexes,
+                        y=values,
+                        mode="markers+lines",
+                        name=association[employee],
+                        line=dict(width=2),
+                    )
+                )
+
+            line_plot.update_layout(
+                title=dict(
+                    text=f"Temporal Chart of Sales by Employee",
+                    font=dict(size=20),
+                    xanchor="center",
+                    x=0.5,
+                    yanchor="top",
+                ),
+                xaxis_title="Date",
+                yaxis_title="Total Sales ($)",
+                showlegend=True,
+                legend=dict(
+                    orientation="h",
+                    yanchor="bottom",
+                    y=-0.5,
+                    xanchor="center",
+                    x=0.5
+                ),
+            )
+
+            st.plotly_chart(line_plot, use_container_width=True)
 
     elif decision == "Sales by Customer":
         ids_customer_selected = [

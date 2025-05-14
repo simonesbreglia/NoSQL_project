@@ -4,15 +4,21 @@ from pymongo.server_api import ServerApi
 
 @st.cache_resource
 
+def get_first_docker_connection():
+    url = "mongodb://mongodb:27017/"
+    client = MongoClient(url)
+    if "Chinook" in client.list_database_names():
+        print("Dropping database Chinook")
+        client.drop_database("Chinook")
+    print("Creating database Chinook")
+    db = client["Chinook"]
+    return db
+
 def get_docker_connection():
     url = "mongodb://mongodb:27017/"
     client = MongoClient(url)
-    # controlla se esiste il db Chinook
-    db = client['Chinook']
-    # elimina il db Chinook se esiste
-    if db in client.list_database_names():
-        client.drop_database(db)
-    return db["Chinook"]
+    db = client["Chinook"]
+    return db
 
 def get_remote_connection():
     uri = st.secrets['mongo']['uri']
