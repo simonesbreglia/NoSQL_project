@@ -240,130 +240,133 @@ if st.session_state.run == True:
             if "$match" in stage:
                 stage["$match"]["InvoiceLines.TrackId"]["$in"] = track_ids
                 break
-        result = db.Invoice.aggregate(pipeline)
-        df_result = pd.DataFrame(list(result))
-        df_result.set_index("_id", inplace=True)
-        df_result.index = df_result.index.str[0]
+        try:
+            result = db.Invoice.aggregate(pipeline)
+            df_result = pd.DataFrame(list(result))
+            df_result.set_index("_id", inplace=True)
+            df_result.index = df_result.index.str[0]
 
-        # aggiungo un istogramma per riassumere le vendite totali
-        indexes = df_result.index
-        values = df_result.loc[:, "TotalRevenue"].values.flatten()
+            # aggiungo un istogramma per riassumere le vendite totali
+            indexes = df_result.index
+            values = df_result.loc[:, "TotalRevenue"].values.flatten()
 
 
 
-        if len(selected_option) < len(options):
-            ref = {
-                indexes[i]: values[i] for i in range(len(indexes)) if indexes[i] for i in range(len(indexes)) if
-                indexes[i] in selected_option
-            }
-            for opt in selected_option:
-                if opt not in list(ref.keys()):
-                    ref[opt] = 0.0
-            indexes = list(ref.keys())
-            values = list(ref.values())
+            if len(selected_option) < len(options):
+                ref = {
+                    indexes[i]: values[i] for i in range(len(indexes)) if indexes[i] for i in range(len(indexes)) if
+                    indexes[i] in selected_option
+                }
+                for opt in selected_option:
+                    if opt not in list(ref.keys()):
+                        ref[opt] = 0.0
+                indexes = list(ref.keys())
+                values = list(ref.values())
 
-        indexes = list(sorted(indexes, key=lambda x: values[indexes.index(x)], reverse=True))
-        values = sorted(values, reverse=True)
-        values = np.round(values, decimals = 2)
+            indexes = list(sorted(indexes, key=lambda x: values[indexes.index(x)], reverse=True))
+            values = sorted(values, reverse=True)
+            values = np.round(values, decimals = 2)
 
-        bar_fig = go.Figure()
-        bar_fig.add_trace(
-            go.Bar(
-                x=indexes,
-                y=values,
-                text=values,
-                textposition="auto",
-                textfont=dict(size=12),
-                width=0.5,
-            )
-        )
-
-        bar_fig.update_layout(
-            title=dict(
-                text=f"Total Sales by {music_decision}",
-                font=dict(size=20),
-                xanchor="center",
-                x=0.5,
-                yanchor="top",
-            ),
-            xaxis_title=music_decision,
-            yaxis_title="Total Sales ($)",
-            showlegend=False,
-        )
-
-        st.plotly_chart(bar_fig, use_container_width=True)
-
-        with open(path + f'/PipelinesMongoDB/DatesInvoice{music_decision}.json') as f:
-            pipeline = json.load(f)
-        track_ids = search_track_ids(db, selected_option, music_decision)
-        for stage in pipeline:
-            if "$match" in stage:
-                stage["$match"]["InvoiceLines.TrackId"]["$in"] = track_ids
-                break
-
-        result = db.Invoice.aggregate(pipeline)
-        df_result_temporal = pd.DataFrame(list(result))
-        df_result_temporal["Date"] = pd.to_datetime(df_result_temporal["Date"])
-        df_result_temporal.set_index([df_result_temporal.columns[0], df_result_temporal.columns[1]], inplace=True)
-        df_result_temporal.sort_index(level=[0, 1], inplace=True)
-        min_date = df_result_temporal.index.get_level_values(1).min()
-        max_date = df_result_temporal.index.get_level_values(1).max()
-        date_range = pd.date_range(min_date, max_date, freq='D')
-
-        df_result_temporal.sort_index(level=[0, 1], inplace=True)
-        for genre in df_result_temporal.index.get_level_values(0).unique():
-            missing_dates = date_range.difference(df_result_temporal.loc[genre].index)
-            df_result_temporal = pd.concat([
-                df_result_temporal,
-                pd.DataFrame(
-                    {'TotalRevenue': 0.0},
-                    index=pd.MultiIndex.from_product([[genre],
-                                                      pd.to_datetime(
-                                                          missing_dates)],
-                                                     names=df_result_temporal.index.names))])
-
-        df_result_temporal.sort_index(level=[0, 1], inplace=True)
-        df_result_temporal = df_result_temporal.groupby(level=0).resample('ME', level=1).sum()
-
-        line_plot = go.Figure()
-        for option in selected_option:
-            try:
-                indexes = df_result_temporal.loc[pd.IndexSlice[option, :], :].index.get_level_values(1).unique()
-                values = df_result_temporal.loc[pd.IndexSlice[option, :], "TotalRevenue"].values.flatten()
-
-                line_plot.add_trace(
-                    go.Scatter(
-                        x=indexes,
-                        y=values,
-                        mode="markers+lines",
-                        name=option,
-                        line=dict(width=2),
-                    )
+            bar_fig = go.Figure()
+            bar_fig.add_trace(
+                go.Bar(
+                    x=indexes,
+                    y=values,
+                    text=values,
+                    textposition="auto",
+                    textfont=dict(size=12),
+                    width=0.5,
                 )
-            except KeyError:
-                continue
+            )
 
-        line_plot.update_layout(
-            title=dict(
-                text=f"Temporal Chart of Sales by {music_decision}",
-                font=dict(size=20),
-                xanchor="center",
-                x=0.5,
-                yanchor="top",
-            ),
-            xaxis_title="Date",
-            yaxis_title="Total Sales ($)",
-            showlegend=True,
-            legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=-0.5,
-                xanchor="center",
-                x=0.5
-            ),
-        )
+            bar_fig.update_layout(
+                title=dict(
+                    text=f"Total Sales by {music_decision}",
+                    font=dict(size=20),
+                    xanchor="center",
+                    x=0.5,
+                    yanchor="top",
+                ),
+                xaxis_title=music_decision,
+                yaxis_title="Total Sales ($)",
+                showlegend=False,
+            )
 
-        st.plotly_chart(line_plot, use_container_width=True)
+            st.plotly_chart(bar_fig, use_container_width=True)
+
+            with open(path + f'/PipelinesMongoDB/DatesInvoice{music_decision}.json') as f:
+                pipeline = json.load(f)
+            track_ids = search_track_ids(db, selected_option, music_decision)
+            for stage in pipeline:
+                if "$match" in stage:
+                    stage["$match"]["InvoiceLines.TrackId"]["$in"] = track_ids
+                    break
+
+            result = db.Invoice.aggregate(pipeline)
+            df_result_temporal = pd.DataFrame(list(result))
+            df_result_temporal["Date"] = pd.to_datetime(df_result_temporal["Date"])
+            df_result_temporal.set_index([df_result_temporal.columns[0], df_result_temporal.columns[1]], inplace=True)
+            df_result_temporal.sort_index(level=[0, 1], inplace=True)
+            min_date = df_result_temporal.index.get_level_values(1).min()
+            max_date = df_result_temporal.index.get_level_values(1).max()
+            date_range = pd.date_range(min_date, max_date, freq='D')
+
+            df_result_temporal.sort_index(level=[0, 1], inplace=True)
+            for genre in df_result_temporal.index.get_level_values(0).unique():
+                missing_dates = date_range.difference(df_result_temporal.loc[genre].index)
+                df_result_temporal = pd.concat([
+                    df_result_temporal,
+                    pd.DataFrame(
+                        {'TotalRevenue': 0.0},
+                        index=pd.MultiIndex.from_product([[genre],
+                                                        pd.to_datetime(
+                                                            missing_dates)],
+                                                        names=df_result_temporal.index.names))])
+
+            df_result_temporal.sort_index(level=[0, 1], inplace=True)
+            df_result_temporal = df_result_temporal.groupby(level=0).resample('ME', level=1).sum()
+
+            line_plot = go.Figure()
+            for option in selected_option:
+                try:
+                    indexes = df_result_temporal.loc[pd.IndexSlice[option, :], :].index.get_level_values(1).unique()
+                    values = df_result_temporal.loc[pd.IndexSlice[option, :], "TotalRevenue"].values.flatten()
+
+                    line_plot.add_trace(
+                        go.Scatter(
+                            x=indexes,
+                            y=values,
+                            mode="markers+lines",
+                            name=option,
+                            line=dict(width=2),
+                        )
+                    )
+                except KeyError:
+                    continue
+
+            line_plot.update_layout(
+                title=dict(
+                    text=f"Temporal Chart of Sales by {music_decision}",
+                    font=dict(size=20),
+                    xanchor="center",
+                    x=0.5,
+                    yanchor="top",
+                ),
+                xaxis_title="Date",
+                yaxis_title="Total Sales ($)",
+                showlegend=True,
+                legend=dict(
+                    orientation="h",
+                    yanchor="bottom",
+                    y=-0.5,
+                    xanchor="center",
+                    x=0.5
+                ),
+            )
+
+            st.plotly_chart(line_plot, use_container_width=True)
+        except KeyError:
+            st.warning("No results found for the selected music options.")
 
     elif decision == "Sales by Employee":
 
@@ -376,9 +379,7 @@ if st.session_state.run == True:
         results = db.Invoice.aggregate(pipeline)
         df_result = pd.DataFrame(list(results))
         
-        if len(df_result) == 0:
-            st.warning("No results found for the selected employees.")
-        else:
+        try:
             df_result['InvoiceDate'] = pd.to_datetime(df_result['InvoiceDate'])
             df_result.set_index(['EmployeeId', 'InvoiceDate'], inplace=True)
             df_result.sort_index(level=[0, 1], inplace=True)
@@ -486,6 +487,8 @@ if st.session_state.run == True:
             )
 
             st.plotly_chart(line_plot, use_container_width=True)
+        except KeyError:
+            st.warning("No results found for the selected employees.")
 
     elif decision == "Sales by Customer":
         ids_customer_selected = [
@@ -499,107 +502,109 @@ if st.session_state.run == True:
         for stage in pipeline:
             if "$match" in stage:
                 stage["$match"]["CustomerId"]["$in"] = ids_customer_selected
+        try:
+            result = db.Invoice.aggregate(pipeline)
+            df_result = pd.DataFrame(list(result))
+            df_result['Date'] = pd.to_datetime(df_result['Date'])
+            df_result.set_index(['CustomerId', 'Date'], inplace=True)
+            df_result.sort_index(level=[0, 1], inplace=True)
+            min_date = df_result.index.get_level_values(1).min()
+            max_date = df_result.index.get_level_values(1).max()
+            date_range = pd.date_range(start=min_date, end=max_date, freq='D')
 
-        result = db.Invoice.aggregate(pipeline)
-        df_result = pd.DataFrame(list(result))
-        df_result['Date'] = pd.to_datetime(df_result['Date'])
-        df_result.set_index(['CustomerId', 'Date'], inplace=True)
-        df_result.sort_index(level=[0, 1], inplace=True)
-        min_date = df_result.index.get_level_values(1).min()
-        max_date = df_result.index.get_level_values(1).max()
-        date_range = pd.date_range(start=min_date, end=max_date, freq='D')
+            for _id in df_result.index.get_level_values(0).unique():
+                missing_dates = date_range.difference(df_result.loc[_id].index)
+                df_result = pd.concat([
+                    df_result,
+                    pd.DataFrame(
+                        {'TotalRevenue': 0.0},
+                        index=pd.MultiIndex.from_product([[_id],
+                                                        pd.to_datetime(
+                                                            missing_dates)],
+                                                        names=df_result.index.names))])
 
-        for _id in df_result.index.get_level_values(0).unique():
-            missing_dates = date_range.difference(df_result.loc[_id].index)
-            df_result = pd.concat([
-                df_result,
-                pd.DataFrame(
-                    {'TotalRevenue': 0.0},
-                    index=pd.MultiIndex.from_product([[_id],
-                                                      pd.to_datetime(
-                                                          missing_dates)],
-                                                     names=df_result.index.names))])
+            df_result.sort_index(level=[0, 1], inplace=True)
+            df_result = df_result.groupby(level=0).resample('ME', level=1).sum()
 
-        df_result.sort_index(level=[0, 1], inplace=True)
-        df_result = df_result.groupby(level=0).resample('ME', level=1).sum()
+            temp_chart = go.Figure()
+            for customer in df_result.index.get_level_values(0).unique():
+                indexes = df_result.loc[pd.IndexSlice[customer, :], :].index.get_level_values(1).unique()
+                values = df_result.loc[pd.IndexSlice[customer, :], "TotalRevenue"].values.flatten()
 
-        temp_chart = go.Figure()
-        for customer in df_result.index.get_level_values(0).unique():
-            indexes = df_result.loc[pd.IndexSlice[customer, :], :].index.get_level_values(1).unique()
-            values = df_result.loc[pd.IndexSlice[customer, :], "TotalRevenue"].values.flatten()
+                temp_chart.add_trace(
+                    go.Scatter(
+                        x=indexes,
+                        y=values,
+                        mode="markers+lines",
+                        name=id_to_name[customer],
+                        line=dict(width=2),
+                        legendgroup=id_to_name[customer],
+                        hoverinfo="name"
+                    )
+                )
 
-            temp_chart.add_trace(
-                go.Scatter(
-                    x=indexes,
-                    y=values,
-                    mode="markers+lines",
-                    name=id_to_name[customer],
-                    line=dict(width=2),
-                    legendgroup=id_to_name[customer],
-                    hoverinfo="name"
+            temp_chart.update_layout(
+                title=dict(
+                    text=f"Temporal Chart of Sales by Customer",
+                    font=dict(size=20),
+                    xanchor="center",
+                    x=0.5,
+                    yanchor="top",
+                ),
+                xaxis_title="Date",
+                yaxis_title="Total Sales ($)",
+                showlegend=True,
+                legend=dict(
+                    orientation="h",
+                    yanchor="bottom",
+                    y=-0.5,
+                    xanchor="center",
+                    x=0.5,
+                    itemclick = "toggleothers",
+                    itemdoubleclick = "toggle",
                 )
             )
 
-        temp_chart.update_layout(
-            title=dict(
-                text=f"Temporal Chart of Sales by Customer",
-                font=dict(size=20),
-                xanchor="center",
-                x=0.5,
-                yanchor="top",
-            ),
-            xaxis_title="Date",
-            yaxis_title="Total Sales ($)",
-            showlegend=True,
-            legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=-0.5,
-                xanchor="center",
-                x=0.5,
-                itemclick = "toggleothers",
-                itemdoubleclick = "toggle",
+            st.plotly_chart(temp_chart, use_container_width=True)
+
+            # grafico a barre per le vendite totali
+
+            bar_fig = go.Figure()
+            values = df_result.groupby(level = 0).sum().values.flatten()
+            indexes = [
+                id_to_name[_ref] for _ref in df_result.index.get_level_values(0).unique()
+            ]
+            for name in list(customer_selected):
+                if name not in indexes:
+                    indexes.append(name)
+                    values = np.append(values, 0.0)
+            indexes = [x for _, x in sorted(zip(values, indexes), reverse=True)]
+            values = sorted(values, reverse=True)
+
+            bar_fig.add_trace(
+                go.Bar(
+                    x = indexes,
+                    y = values,
+                    text = values,
+                    textposition="auto",
+                    textfont=dict(size=12),
+                    width=0.5,
+                )
             )
-        )
 
-        st.plotly_chart(temp_chart, use_container_width=True)
-
-        # grafico a barre per le vendite totali
-
-        bar_fig = go.Figure()
-        values = df_result.groupby(level = 0).sum().values.flatten()
-        indexes = [
-            id_to_name[_ref] for _ref in df_result.index.get_level_values(0).unique()
-        ]
-        for name in list(customer_selected):
-            if name not in indexes:
-                indexes.append(name)
-                values = np.append(values, 0.0)
-        indexes = [x for _, x in sorted(zip(values, indexes), reverse=True)]
-        values = sorted(values, reverse=True)
-
-        bar_fig.add_trace(
-            go.Bar(
-                x = indexes,
-                y = values,
-                text = values,
-                textposition="auto",
-                textfont=dict(size=12),
-                width=0.5,
+            bar_fig.update_layout(
+                title=dict(
+                    text=f"Total Sales by Customer",
+                    font=dict(size=20),
+                    xanchor="center",
+                    x=0.5,
+                    yanchor="top",
+                ),
+                xaxis_title="Customer",
+                yaxis_title="Total Sales ($)",
+                showlegend=False,
             )
-        )
 
-        bar_fig.update_layout(
-            title=dict(
-                text=f"Total Sales by Customer",
-                font=dict(size=20),
-                xanchor="center",
-                x=0.5,
-                yanchor="top",
-            ),
-            xaxis_title="Customer",
-            yaxis_title="Total Sales ($)",
-            showlegend=False,
-        )
-
-        st.plotly_chart(bar_fig, use_container_width=True)
+            st.plotly_chart(bar_fig, use_container_width=True)
+        except KeyError:
+            st.warning("No results found for the selected customers.")
