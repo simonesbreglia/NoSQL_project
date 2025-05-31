@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2025/dev/Debian) (preloaded format=pdflatex 2025.4.7)  14 MAY 2025 15:21
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2025/dev/Debian) (preloaded format=pdflatex 2025.4.7)  31 MAY 2025 11:52
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1463,4 +1463,82 @@ File: images/ChinookNoSQL.drawio.png Graphic file (type png)
 <use images/ChinookNoSQL.drawio.png>
 Package pdftex.def Info: images/ChinookNoSQL.drawio.png  used on input line 401
 .
-(pdfte
+(pdftex.def)             Requested size: 386.95897pt x 224.35484pt.
+
+
+[7 <./images/ER_Chinook.png> <./images/ChinookNoSQL.drawio.png>]
+
+LaTeX Warning: Reference `fig:filtering' on page 8 undefined on input line 449.
+
+
+! Undefined control sequence.
+l.467 ...ery sono raccolte nella cartella \tesxtit
+                                                  {PipelinesMongoDB}.
+? 
+
+
+[8]
+
+[9]
+
+[10] (./main.bbl)
+
+[11] (/usr/share/texlive/texmf-dist/tex/latex/listings/lstlang1.sty
+File: lstlang1.sty 2024/05/25 1.10b listings language file
+)
+
+[12]
+
+[13]
+Overfull \hbox (14.3082pt too wide) in paragraph at lines 683--684
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+
+Overfull \hbox (8.30814pt too wide) in paragraph at lines 693--694
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+
+Overfull \hbox (26.30832pt too wide) in paragraph at lines 694--695
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+
+
+[14]
+
+[15] (./main.aux)
+ ***********
+LaTeX2e <2024-06-01> patch level 2
+L3 programming layer <2024-05-27>
+ ***********
+
+
+LaTeX Warning: There were undefined references.
+
+Package rerunfilecheck Info: File `main.out' has not changed.
+(rerunfilecheck)             Checksum: 7017A3E8CCE4760EA306979EB0BE85D8;2909.
+ ) 
+Here is how much of TeX's memory you used:
+ 27730 strings out of 473584
+ 502173 string characters out of 5730880
+ 2078905 words of memory out of 5000000
+ 49782 multiletter control sequences out of 15000+600000
+ 624682 words of font info for 84 fonts, out of 8000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 99i,10n,117p,498b,2135s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</usr/share/texlive/texmf-dist/fonts/type1/google/roboto/RobotoSlab-Bold.pfb>
+</usr/share/texlive/texmf-dist/fonts/type1/google/roboto/RobotoSlab-Regular.pfb
+></usr/share/texmf/fonts/type1/public/cm-super/sftt0800.pfb></usr/share/texmf/f
+onts/type1/public/cm-super/sftt0900.pfb></usr/share/texmf/fonts/type1/public/cm
+-super/sftt1000.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhv
+b8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb></us
+r/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvro8a.pfb>
+Output written on main.pdf (16 pages, 445751 bytes).
+PDF statistics:
+ 644 PDF objects out of 1000 (max. 8388607)
+ 597 compressed objects within 6 object streams
+ 344 named destinations out of 1000 (max. 500000)
+ 212 words of extra memory for PDF output out of 10000 (max. 10000000)
+
